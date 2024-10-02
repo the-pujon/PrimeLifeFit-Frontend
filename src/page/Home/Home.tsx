@@ -1,5 +1,6 @@
 import FeaturedProduct from '@/components/home/FeaturedProduct'
 import Features from '@/components/home/Features'
+import Gallery from '@/components/home/Gallery'
 import Hero from '@/components/home/Hero'
 import ProductBenefits from '@/components/home/ProductBenifits'
 import ShopByCategory from '@/components/home/ShopByCategory'
@@ -13,6 +14,7 @@ const Home: React.FC = () => {
             <ShopByCategory />
             <FeaturedProduct />
             <ProductBenefits />
+            <Gallery />
         </div>
     )
 }
