@@ -31,7 +31,7 @@ export default function Navbar() {
             } bg-primary  shadow-lg`}>
             <div className="wrapper px-4">
                 <div className="flex items-center justify-between">
-                    <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-white hover:text-primary transition-colors duration-300">
+                    <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-white">
                         <Dumbbell className="w-8 h-8" />
                         <span className="tracking-wider">PrimeLifeFit</span>
                     </Link>
