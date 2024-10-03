@@ -49,6 +49,10 @@ const ProductCard = ({ product }) => {
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow p-6">
+                    <div className="flex items-center space-x-2 mb-2">
+                        <Badge variant="default">{product.category}</Badge>
+                        <Badge variant="outline">{product.brand ? product.brand : "N/A"}</Badge>
+                    </div>
                     <CardTitle className="text-2xl mb-2 transition-colors duration-300 group-hover:text-primary">{product.name}</CardTitle>
                     <p className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
                     <div className="mt-4 flex justify-between items-center">
@@ -61,7 +65,10 @@ const ProductCard = ({ product }) => {
                             className="text-primary hover:text-primary-foreground hover:bg-primary transition-colors duration-300"
                             asChild
                         >
-                            <Link to={`/products/${product.id}`}>
+                            <Link
+                                //to={`/products/${product.id}`}
+                                to="/product-details"
+                            >
                                 View Details
                                 <ArrowRight className="ml-2 w-4 h-4" />
                             </Link>

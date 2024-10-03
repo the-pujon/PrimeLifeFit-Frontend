@@ -3,6 +3,7 @@ import AboutUs from "@/page/AboutUs/AboutUs";
 import SignIn from "@/page/Authentication/SignIn";
 import SignUp from "@/page/Authentication/SignUp";
 import Home from "@/page/Home/Home";
+import ProductDetails from "@/page/ProductDetails/ProductDetails";
 import Products from "@/page/Products/Products";
 import { createBrowserRouter } from "react-router-dom";
 
@@ -23,6 +24,10 @@ export const router = createBrowserRouter([
             {
                 path: '/products',
                 element: <Products />
+            },
+            {
+                path: '/product-details',
+                element: <ProductDetails />
             }
         ]
     },
