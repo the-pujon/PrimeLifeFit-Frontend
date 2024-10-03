@@ -3,6 +3,7 @@ import AboutUs from "@/page/AboutUs/AboutUs";
 import SignIn from "@/page/Authentication/SignIn";
 import SignUp from "@/page/Authentication/SignUp";
 import Home from "@/page/Home/Home";
+import Products from "@/page/Products/Products";
 import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter([
@@ -18,6 +19,10 @@ export const router = createBrowserRouter([
                 path: '/about-us',
                 element: <AboutUs />
 
+            },
+            {
+                path: '/products',
+                element: <Products />
             }
         ]
     },

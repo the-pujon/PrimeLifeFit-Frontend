@@ -18,7 +18,7 @@ export default function Navbar() {
 
     const menuItems = [
         { name: 'Home',to: '/' },
-        { name: 'Our shop',to: '/shop' },
+        { name: 'Our Products',to: '/products' },
         { name: 'About us',to: '/about-us' },
         //{ name: 'ACCESSORIES',to: '/accessories' },
         //{ name: 'OUTLET',to: '/outlet' },
