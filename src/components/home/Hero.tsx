@@ -1,5 +1,4 @@
 import { ArrowRight } from 'lucide-react'
-import React from 'react'
 import { Link } from 'react-router-dom'
 import Hero1 from '@/assets/hero1.jpg'
 
@@ -11,8 +10,6 @@ const Hero = () => {
                     <img
                         src={Hero1}
                         alt="Background"
-                        //layout="fill"
-                        //objectFit="cover"
                         className="opacity-30 bg-cover"
                     />
                 </div>
@@ -43,8 +40,6 @@ const Hero = () => {
                             <img
                                 src={Hero1}
                                 alt="Fitness Equipment"
-                                //width={600}
-                                //height={600}
                                 className="rounded-lg shadow-2xl"
                             />
 

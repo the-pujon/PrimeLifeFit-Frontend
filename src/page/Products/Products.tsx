@@ -12,7 +12,7 @@ import { Search,X,Filter } from 'lucide-react'
 import ProductCard from '@/components/ui/ProductCard'
 import Image from "@/assets/hero1.jpg"
 
-// Mock data for demonstration
+
 const mockProducts = [
     { id: 1,name: "Treadmill Pro",price: 999.99,category: "Cardio",image: Image,inStock: true },
     { id: 2,name: "Dumbbell Set",price: 149.99,category: "Strength",image: Image,inStock: true },
@@ -38,7 +38,6 @@ export default function Products() {
             product.price >= priceRange[0] && product.price <= priceRange[1]
         )
 
-        // Sort products
         filteredProducts.sort((a,b) =>
             sortOrder === "asc" ? a.price - b.price : b.price - a.price
         )

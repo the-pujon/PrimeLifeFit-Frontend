@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useState,useEffect,useRef } from "react";
 import {
@@ -49,7 +49,7 @@ const team = [
     },
 ]
 
-// Add this new section data
+
 const milestones = [
     { year: 2010,event: "PrimeLifeFit founded" },
     { year: 2013,event: "Launched first product line" },

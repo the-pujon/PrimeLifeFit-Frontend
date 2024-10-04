@@ -35,8 +35,6 @@ const Cart = () => {
     const [isOutOfStock,setIsOutOfStock] = useState(false)
 
     useEffect(() => {
-        // Fetch cart items from API or local storage
-        // For now, we'll use dummy data with added descriptions
         setCartItems([
             { id: 1,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: image1,description: 'High-quality adjustable dumbbells for your home gym.' },
             { id: 2,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: image1,description: 'Non-slip, eco-friendly yoga mat for comfortable practice.' },

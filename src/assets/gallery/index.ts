@@ -14,7 +14,6 @@ import image13 from "./the-nix-company-biX8sBfNcPc-unsplash.jpg";
 import image14 from "./tyler-raye-eiAHNFufvDA-unsplash.jpg";
 import image15 from "./victor-freitas-WvDYdXDzkhs-unsplash.jpg";
 
-// Export images
 export const images = [
   image1,
   image2,
