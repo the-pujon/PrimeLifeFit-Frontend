@@ -1,17 +1,17 @@
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card"
+import { Bar,BarChart,ResponsiveContainer,XAxis,YAxis } from "recharts"
 import { motion } from 'framer-motion'
-import { ShoppingBag, Users, Package, DollarSign } from 'lucide-react'
+import { ShoppingBag,Users,Package,DollarSign } from 'lucide-react'
 
 // Mock data for charts
 const monthlySales = [
-    { name: "Jan", total: 1200 },
-    { name: "Feb", total: 2100 },
-    { name: "Mar", total: 1800 },
-    { name: "Apr", total: 2400 },
-    { name: "May", total: 2800 },
-    { name: "Jun", total: 3200 },
+    { name: "Jan",total: 1200 },
+    { name: "Feb",total: 2100 },
+    { name: "Mar",total: 1800 },
+    { name: "Apr",total: 2400 },
+    { name: "May",total: 2800 },
+    { name: "Jun",total: 3200 },
 ]
 
 const Overview: React.FC = () => {
@@ -113,8 +113,8 @@ const Overview: React.FC = () => {
                                 />
                                 <Bar
                                     dataKey="total"
-                                    fill="#adfa1d"
-                                    radius={[4, 4, 0, 0]}
+                                    fill="#111827"
+                                    radius={[4,4,0,0]}
                                 />
                             </BarChart>
                         </ResponsiveContainer>
