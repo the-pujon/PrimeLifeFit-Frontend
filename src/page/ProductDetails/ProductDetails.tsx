@@ -2,8 +2,8 @@ import React,{ useState,useCallback,useEffect } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from "@/components/ui/button";
 import { Card,CardContent } from "@/components/ui/card";
-import { ChevronLeft,ChevronRight,ShoppingCart,Truck,Shield,Zap,Star } from 'lucide-react';
-import { motion,AnimatePresence } from 'framer-motion';
+import { ChevronLeft,ChevronRight,ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
 import img from "@/assets/hero1.jpg"
 
 const productData = {
@@ -26,12 +26,11 @@ const productData = {
 
 const ProductDetails: React.FC = () => {
     const [emblaRef,emblaApi] = useEmblaCarousel({ loop: true });
-    const [selectedIndex,setSelectedIndex] = useState(0);
     const [isZoomed,setIsZoomed] = useState(false);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
-        setSelectedIndex(emblaApi.selectedScrollSnap());
+        //setSelectedIndex(emblaApi.selectedScrollSnap());
     },[emblaApi]);
 
     useEffect(() => {

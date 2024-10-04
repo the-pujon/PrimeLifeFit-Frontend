@@ -2,6 +2,7 @@ import App from "@/App";
 import AboutUs from "@/page/AboutUs/AboutUs";
 import SignIn from "@/page/Authentication/SignIn";
 import SignUp from "@/page/Authentication/SignUp";
+import Cart from "@/page/Cart/Cart";
 import Home from "@/page/Home/Home";
 import ProductDetails from "@/page/ProductDetails/ProductDetails";
 import Products from "@/page/Products/Products";
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
             {
                 path: '/product-details',
                 element: <ProductDetails />
+            },
+            {
+                path: '/cart',
+                element: <Cart />
             }
         ]
     },
