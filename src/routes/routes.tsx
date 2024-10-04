@@ -4,6 +4,7 @@ import SignIn from "@/page/Authentication/SignIn";
 import SignUp from "@/page/Authentication/SignUp";
 import Cart from "@/page/Cart/Cart";
 import Checkout from "@/page/Checkout/Checkout";
+import CustomerManagement from "@/page/Dashboard/CustomerManagement/CustomerManagement";
 import Dashboard from "@/page/Dashboard/Dashboard";
 import OrderManagement from "@/page/Dashboard/OrderManagement/OrderManagement";
 import Overview from "@/page/Dashboard/Overview/Overview";
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
             {
                 path: "product-management",
                 element: <ProductManagement />
+            },
+            {
+                path: "customer-management",
+                element: <CustomerManagement />
             }
         ]
     }
