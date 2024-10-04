@@ -119,7 +119,7 @@ export default function Navbar() {
                             >
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors duration-300 transform hover:scale-110">
+                                        <Button variant="ghost" size="icon" className="text-white hover:text-primary transition-colors duration-300 transform hover:scale-110">
                                             <User size={20} />
                                         </Button>
                                     </DropdownMenuTrigger>
@@ -134,7 +134,7 @@ export default function Navbar() {
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                                <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(true)} className="relative text-white hover:text-white transition-colors duration-300 transform hover:scale-110">
+                                <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(true)} className="relative text-white hover:text-primary transition-colors duration-300 transform hover:scale-110">
                                     <ShoppingCart className="h-[1.2rem] w-[1.2rem]" />
                                     <Badge variant="secondary" className="absolute -top-2 -right-2 bg-red-500 text-white">
                                         {cartItemCount}
