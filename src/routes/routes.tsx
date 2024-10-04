@@ -4,6 +4,10 @@ import SignIn from "@/page/Authentication/SignIn";
 import SignUp from "@/page/Authentication/SignUp";
 import Cart from "@/page/Cart/Cart";
 import Checkout from "@/page/Checkout/Checkout";
+import Dashboard from "@/page/Dashboard/Dashboard";
+import OrderManagement from "@/page/Dashboard/OrderManagement/OrderManagement";
+import Overview from "@/page/Dashboard/Overview/Overview";
+import ProductManagement from "@/page/Dashboard/ProductManagement/ProductManagement";
 import Home from "@/page/Home/Home";
 import ProductDetails from "@/page/ProductDetails/ProductDetails";
 import Products from "@/page/Products/Products";
@@ -51,6 +55,24 @@ export const router = createBrowserRouter([
             {
                 path: "signin",
                 element: <SignIn />,
+            }
+        ]
+    },
+    {
+        path: "/dashboard",
+        element: <Dashboard />,
+        children: [
+            {
+                path: "",
+                element: <Overview />
+            },
+            {
+                path: "order-management",
+                element: <OrderManagement />
+            },
+            {
+                path: "product-management",
+                element: <ProductManagement />
             }
         ]
     }
