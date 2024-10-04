@@ -1,7 +1,7 @@
 import React,{ useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/components/ui/table"
-import { UserPlus,ShieldAlert,ShieldCheck } from "lucide-react"
+import { ShieldAlert,ShieldCheck } from "lucide-react"
 import { motion,AnimatePresence } from 'framer-motion'
 import { Badge } from "@/components/ui/badge"
 import {
