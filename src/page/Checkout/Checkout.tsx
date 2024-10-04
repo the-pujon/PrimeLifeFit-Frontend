@@ -8,7 +8,8 @@ import { RadioGroup,RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 //import { useToast } from "@/components/ui/use-toast"
 import { motion } from "framer-motion"
-import { CreditCard,Truck } from 'lucide-react'
+import { CreditCard,Truck,ShoppingBag } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface CheckoutItem {
     id: number
@@ -44,19 +45,19 @@ const Checkout = () => {
             // Process cash on delivery order
             // Here you would typically send this data to your backend
             console.log('Processing cash on delivery order:',{ userData,cartItems })
-            //toast({
-            //    title: "Order Placed Successfully",
-            //    description: "Your order will be delivered soon.",
-            //})
+            toast({
+                title: "Order Placed Successfully",
+                description: "Your order will be delivered soon.",
+            })
             navigate('/success')
         } else if (paymentMethod === 'stripe') {
             // Redirect to Stripe payment
             // In a real application, you would create a Stripe session here
             console.log('Redirecting to Stripe payment')
-            //toast({
-            //    title: "Redirecting to Stripe",
-            //    description: "You will be redirected to complete your payment.",
-            //})
+            toast({
+                title: "Redirecting to Stripe",
+                description: "You will be redirected to complete your payment.",
+            })
             // For this example, we'll just navigate to a success page
             navigate('/success')
         }
@@ -70,55 +71,66 @@ const Checkout = () => {
                 animate={{ opacity: 1,y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                Checkout
+                Complete Your Order
             </motion.h1>
-            <div className="grid gap-8 lg:grid-cols-2">
+            <div className="grid gap-8 lg:grid-cols-3">
                 <motion.div
+                    className="lg:col-span-2"
                     initial={{ opacity: 0,x: -20 }}
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <Card className="shadow-lg">
-                        <CardContent className="p-6">
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Details</h2>
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
-                                        <Input id="name" name="name" required className="mt-1" />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
-                                        <Input id="email" name="email" type="email" required className="mt-1" />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
-                                        <Input id="phone" name="phone" type="tel" required className="mt-1" />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="address" className="text-sm font-medium text-gray-700">Delivery Address</Label>
-                                        <Input id="address" name="address" required className="mt-1" />
+                    <Card className="shadow-lg rounded-none">
+                        <CardContent className="p-8">
+                            <form onSubmit={handleSubmit} className="space-y-8">
+                                <div>
+                                    <h2 className="text-2xl font-semibold mb-6 flex items-center text-gray-800">
+                                        <ShoppingBag className="w-6 h-6 mr-2 text-primary" />
+                                        Your Details
+                                    </h2>
+                                    <div className="grid gap-6 sm:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
+                                            <Input id="name" name="name" required className="mt-1" />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
+                                            <Input id="email" name="email" type="email" required className="mt-1" />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
+                                            <Input id="phone" name="phone" type="tel" required className="mt-1" />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="address" className="text-sm font-medium text-gray-700">Delivery Address</Label>
+                                            <Input id="address" name="address" required className="mt-1" />
+                                        </div>
                                     </div>
                                 </div>
                                 <Separator className="my-8" />
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Payment Method</h2>
-                                <RadioGroup defaultValue="cash" onValueChange={setPaymentMethod} className="space-y-4">
-                                    <div className="flex items-center space-x-3 bg-white border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                                        <RadioGroupItem value="cash" id="cash" />
-                                        <Label htmlFor="cash" className="flex items-center cursor-pointer">
-                                            <Truck className="w-5 h-5 mr-2 text-primary" />
-                                            Cash on Delivery
-                                        </Label>
-                                    </div>
-                                    <div className="flex items-center space-x-3 bg-white border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                                        <RadioGroupItem value="stripe" id="stripe" />
-                                        <Label htmlFor="stripe" className="flex items-center cursor-pointer">
-                                            <CreditCard className="w-5 h-5 mr-2 text-primary" />
-                                            Pay with Stripe
-                                        </Label>
-                                    </div>
-                                </RadioGroup>
-                                <Button type="submit" className="w-full mt-8 text-lg font-semibold py-6">
+                                <div>
+                                    <h2 className="text-2xl font-semibold mb-6 flex items-center text-gray-800">
+                                        <CreditCard className="w-6 h-6 mr-2 text-primary" />
+                                        Payment Method
+                                    </h2>
+                                    <RadioGroup defaultValue="cash" onValueChange={setPaymentMethod} className="space-y-4">
+                                        <div className="flex items-center space-x-3 bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
+                                            <RadioGroupItem value="cash" id="cash" />
+                                            <Label htmlFor="cash" className="flex items-center cursor-pointer">
+                                                <Truck className="w-5 h-5 mr-2 text-primary" />
+                                                Cash on Delivery
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-3 bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
+                                            <RadioGroupItem value="stripe" id="stripe" />
+                                            <Label htmlFor="stripe" className="flex items-center cursor-pointer">
+                                                <CreditCard className="w-5 h-5 mr-2 text-primary" />
+                                                Pay with Stripe
+                                            </Label>
+                                        </div>
+                                    </RadioGroup>
+                                </div>
+                                <Button type="submit" className="w-full mt-8 text-lg font-semibold py-6 bg-primary hover:bg-primary/90 transition-colors">
                                     Place Order
                                 </Button>
                             </form>
@@ -130,9 +142,12 @@ const Checkout = () => {
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <Card className="shadow-lg">
-                        <CardContent className="p-6">
-                            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Order Summary</h2>
+                    <Card className="shadow-lg rounded-none">
+                        <CardContent className="p-8">
+                            <h2 className="text-2xl font-semibold mb-6 flex items-center text-gray-800">
+                                <ShoppingBag className="w-6 h-6 mr-2 text-purple-600" />
+                                Order Summary
+                            </h2>
                             <div className="space-y-4">
                                 {cartItems.map(item => (
                                     <div key={item.id} className="flex justify-between items-center">
@@ -143,7 +158,7 @@ const Checkout = () => {
                                 <Separator className="my-4" />
                                 <div className="flex justify-between items-center text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span className="text-primary">${totalPrice.toFixed(2)}</span>
+                                    <span className="text-2xl text-primary">${totalPrice.toFixed(2)}</span>
                                 </div>
                             </div>
                         </CardContent>
