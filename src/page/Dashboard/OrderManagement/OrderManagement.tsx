@@ -4,7 +4,6 @@ import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/comp
 import { Eye,X,ExternalLink,Package,CreditCard,MapPin,Phone,Mail,Calendar } from "lucide-react"
 import { Order,OrderProduct } from '@/types/Orders'
 import { motion,AnimatePresence } from 'framer-motion'
-import { ResizableHandle,ResizablePanel,ResizablePanelGroup } from "@/components/ui/resizable"
 import { useNavigate } from 'react-router-dom'
 import {
     Select,
@@ -39,9 +38,23 @@ const demoOrders: Order[] = [
         products: [
             { productId: "PROD1",name: "Product 1",price: 50.99,quantity: 2,images: ["https://example.com/image1.jpg"] },
             { productId: "PROD2",name: "Product 2",price: 49.01,quantity: 1,images: ["https://example.com/image2.jpg"] },
+            { productId: "PROD2",name: "Product 2",price: 49.01,quantity: 1,images: ["https://example.com/image2.jpg"] },
         ],
     },
-    // Add more mock orders here...
+    {
+        id: "ORD002",
+        totalAmount: 150.99,
+        paymentMethod: "Stripe",
+        status: "Pending",
+        city: "New York",
+        address: "123 Main St, Apt 4B",
+        phone: "+1 (555) 123-4567",
+        email: "customer@example.com",
+        products: [
+            { productId: "PROD1",name: "Product 1",price: 50.99,quantity: 2,images: ["https://example.com/image1.jpg"] },
+            { productId: "PROD2",name: "Product 2",price: 49.01,quantity: 1,images: ["https://example.com/image2.jpg"] },
+        ],
+    }
 ];
 
 const OrderManagement: React.FC = () => {
@@ -76,13 +89,13 @@ const OrderManagement: React.FC = () => {
     }
 
     return (
-        <ResizablePanelGroup direction="horizontal" className="h-screen">
-            <ResizablePanel defaultSize={75} className="bg-gray-50 overflow-hidden">
-                <div className="p-4 sm:p-8 h-full flex flex-col">
+        <div className="h-screen flex flex-col lg:flex-row">
+            <div className="lg:w-3/5 xl:w-2/3 bg-gray-50 overflow-hidden">
+                <div className="p-4 h-full flex flex-col">
                     <motion.h1
                         initial={{ y: -20 }}
                         animate={{ y: 0 }}
-                        className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800"
+                        className="text-2xl font-bold mb-4 text-gray-800"
                     >
                         Order Management
                     </motion.h1>
@@ -130,116 +143,113 @@ const OrderManagement: React.FC = () => {
                         </Table>
                     </div>
                 </div>
-            </ResizablePanel>
+            </div>
 
-            <ResizableHandle />
-
-            <ResizablePanel defaultSize={25} className="bg-white overflow-y-auto">
-                <div className="p-4">
-                    {selectedOrder ? (
-                        <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold">Order Details</h2>
-                                <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(null)}>
-                                    <X className="w-4 h-4" />
-                                </Button>
-                            </div>
-                            <Card className="mb-6">
-                                <CardHeader>
-                                    <CardTitle className="text-lg">Order Information</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex flex-col gap-4 text-sm">
-                                        <div className="flex items-center">
-                                            <Package className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Order ID:</span>
-                                            <span className="ml-2">{selectedOrder.id}</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Total:</span>
-                                            <span className="ml-2">${selectedOrder.totalAmount.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Payment:</span>
-                                            <span className="ml-2">{selectedOrder.paymentMethod}</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Status:</span>
-                                            <Select
-                                                value={selectedOrder.status}
-                                                onValueChange={(value: Order['status']) => handleUpdateStatus(selectedOrder.id,value)}
-                                            >
-                                                <SelectTrigger className="w-[120px] ml-2">
-                                                    <SelectValue placeholder="Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Pending">Pending</SelectItem>
-                                                    <SelectItem value="Completed">Completed</SelectItem>
-                                                    <SelectItem value="Cancelled">Cancelled</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+            <div className={`lg:w-2/5 xl:w-1/3 bg-white overflow-y-auto
+                ${selectedOrder ? 'fixed top-20 inset-0 lg:static lg:top-20 lg:h-full' : 'hidden lg:block lg:sticky lg:top-0 lg:h-screen'}`}>
+                {selectedOrder ? (
+                    <div className="p-4 h-full overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold">Order Details</h2>
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(null)}>
+                                <X className="w-4 h-4" />
+                            </Button>
+                        </div>
+                        <Card className="mb-6">
+                            <CardHeader>
+                                <CardTitle className="text-lg">Order Information</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                    <div className="flex items-center">
+                                        <Package className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Order ID:</span>
+                                        <span className="ml-2">{selectedOrder.id}</span>
                                     </div>
-                                    <Separator className="my-4" />
-                                    <div className="flex flex-col gap-4 text-sm">
-                                        <div className="flex items-center">
-                                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Address:</span>
-                                            <span className="ml-2 truncate">{selectedOrder.address}, {selectedOrder.city}</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Phone:</span>
-                                            <span className="ml-2">{selectedOrder.phone}</span>
-                                        </div>
-                                        <div className="flex items-center col-span-full">
-                                            <Mail className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Email:</span>
-                                            <span className="ml-2 truncate">{selectedOrder.email}</span>
-                                        </div>
+                                    <div className="flex items-center">
+                                        <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Total:</span>
+                                        <span className="ml-2">${selectedOrder.totalAmount.toFixed(2)}</span>
                                     </div>
-                                </CardContent>
-                            </Card>
-                            <h3 className="text-lg font-semibold mt-6 mb-4">Products</h3>
-                            <div className="space-y-4">
-                                {selectedOrder.products.map((product: OrderProduct) => (
-                                    <Card key={product.productId}>
-                                        <CardContent className="p-4">
-                                            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                                                {product.images && product.images.length > 0 && (
-                                                    <img src={product.images[0]} alt={product.name} className="w-16 h-16 object-cover rounded" />
-                                                )}
-                                                <div className="flex-grow">
-                                                    <h4 className="font-semibold text-base">{product.name}</h4>
-                                                    <p className="text-sm text-gray-600">Price: ${product.price.toFixed(2)}</p>
-                                                    <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
-                                                </div>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleViewProductDetails(product.productId)}
-                                                    className="mt-2 sm:mt-0"
-                                                >
-                                                    <ExternalLink className="w-4 h-4 mr-2" /> Details
-                                                </Button>
+                                    <div className="flex items-center">
+                                        <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Payment:</span>
+                                        <span className="ml-2">{selectedOrder.paymentMethod}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Status:</span>
+                                        <Select
+                                            value={selectedOrder.status}
+                                            onValueChange={(value: Order['status']) => handleUpdateStatus(selectedOrder.id,value)}
+                                        >
+                                            <SelectTrigger className="w-[120px] ml-2">
+                                                <SelectValue placeholder="Status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Pending">Pending</SelectItem>
+                                                <SelectItem value="Completed">Completed</SelectItem>
+                                                <SelectItem value="Cancelled">Cancelled</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <Separator className="my-4" />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                    <div className="flex items-center">
+                                        <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Address:</span>
+                                        <span className="ml-2 truncate">{selectedOrder.address}, {selectedOrder.city}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Phone:</span>
+                                        <span className="ml-2">{selectedOrder.phone}</span>
+                                    </div>
+                                    <div className="flex items-center col-span-full">
+                                        <Mail className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Email:</span>
+                                        <span className="ml-2 truncate">{selectedOrder.email}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <h3 className="text-lg font-semibold mt-6 mb-4">Products</h3>
+                        <div className="space-y-4">
+                            {selectedOrder.products.map((product: OrderProduct) => (
+                                <Card key={product.productId}>
+                                    <CardContent className="p-4">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                                            {product.images && product.images.length > 0 && (
+                                                <img src={product.images[0]} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                                            )}
+                                            <div className="flex-grow">
+                                                <h4 className="font-semibold text-base">{product.name}</h4>
+                                                <p className="text-sm text-gray-600">Price: ${product.price.toFixed(2)}</p>
+                                                <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleViewProductDetails(product.productId)}
+                                                className="mt-2 sm:mt-0"
+                                            >
+                                                <ExternalLink className="w-4 h-4 mr-2" /> Details
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center min-h-[75vh] text-gray-500">
-                            <Package className="w-12 h-12 mb-4" />
-                            <p className="text-lg font-medium">Select an order to view details</p>
-                        </div>
-                    )}
-                </div>
-            </ResizablePanel>
-        </ResizablePanelGroup>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                        <Package className="w-12 h-12 mb-4" />
+                        <p className="text-lg font-medium">Select an order to view details</p>
+                    </div>
+                )}
+            </div>
+        </div>
     )
 }
 
