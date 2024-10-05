@@ -35,14 +35,14 @@ const SignUp: React.FC = () => {
     });
 
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
-        const toastId = toast.loading('Logging in');
+        const toastId = toast.loading('Signing up');
 
         try {
 
             const res = await signup(data).unwrap();
             dispatch(setUser({ user: res.data,token: res.token }));
-            toast.success('Successfully Logged in',{ id: toastId,duration: 2000 });
-            navigate('/#testimonials');
+            toast.success('Successfully Signed up',{ id: toastId,duration: 2000 });
+            navigate('/auth/signin');
 
 
         } catch (err) {
@@ -80,22 +80,22 @@ const SignUp: React.FC = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-foreground text-gray-900 flex justify-center">
+        <div className="relative min-h-screen bg-foreground text-gray-900 flex justify-center items-center px-4 sm:px-6 lg:px-8">
             {isLoading && <Loading />}
             <motion.div
-                className="max-w-screen-xl m-0 sm:m-10 bg-primary shadow sm:rounded-lg flex justify-center flex-1"
+                className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl bg-primary shadow rounded-lg flex flex-col lg:flex-row justify-center overflow-hidden"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
-                <div className="lg:w-1/2 xl:w-5/12 pt-24">
+                <div className="w-full lg:w-1/2 p-8 lg:p-12">
                     <motion.div variants={itemVariants}>
-                        <p className='text-white text-center text-5xl font-bold'>Car Service</p>
+                        <p className='text-white text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-6'>Car Service</p>
                     </motion.div>
-                    <div className="mt-0 flex flex-col items-center">
-                        <motion.h1 variants={itemVariants} className="text-2xl xl:text-3xl font-extrabold">Sign up</motion.h1>
-                        <div className="w-full flex-1 mt-8">
-                            <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center">
+                        <motion.h1 variants={itemVariants} className="text-2xl sm:text-3xl font-extrabold mb-6">Sign up</motion.h1>
+                        <div className="w-full">
+                            <div className="flex flex-col items-center space-y-4">
                                 <motion.button
                                     variants={itemVariants}
                                     className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-background text-black flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
@@ -108,7 +108,7 @@ const SignUp: React.FC = () => {
 
                                 <motion.button
                                     variants={itemVariants}
-                                    className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-background text-black flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
+                                    className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-background text-black flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                                 >
                                     <div className="bg-white p-1 rounded-full">
                                         <Github />
@@ -117,26 +117,26 @@ const SignUp: React.FC = () => {
                                 </motion.button>
                             </div>
 
-                            <motion.div variants={itemVariants} className="my-12 text-center">
-                                <div className="leading-none px-2 inline-block text-sm text-gray-200 tracking-wide font-medium transform translate-y-1/2">
+                            <motion.div variants={itemVariants} className="my-8 text-center">
+                                <div className="leading-none px-2 inline-block text-sm text-gray-200 tracking-wide font-medium bg-primary transform translate-y-1/2">
                                     Or sign up with e-mail
                                 </div>
                             </motion.div>
 
-                            <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-xs">
-                                <Input className='backdrop-blur-sm my-2 text-black' required type="name" placeholder="Name" id="name" {...register('name',{ required: true })} />
-                                {errors.name && <div>Name is required.</div>}
-                                <Input className='backdrop-blur-sm my-2 text-black' required type="email" placeholder="Email" id="email" {...register('email',{ required: true })} />
-                                {errors.email && <div>Email is required.</div>}
-                                <Input className='backdrop-blur-sm text-black' required type="password" placeholder="Password" id="password" {...register('password',{ required: true })} />
-                                {errors.password && <div>Password is required.</div>}
+                            <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                                <Input className='backdrop-blur-sm w-full text-black' required type="name" placeholder="Name" id="name" {...register('name',{ required: true })} />
+                                {errors.name && <div className="text-red-500 text-sm">Name is required.</div>}
+                                <Input className='backdrop-blur-sm w-full text-black' required type="email" placeholder="Email" id="email" {...register('email',{ required: true })} />
+                                {errors.email && <div className="text-red-500 text-sm">Email is required.</div>}
+                                <Input className='backdrop-blur-sm w-full text-black' required type="password" placeholder="Password" id="password" {...register('password',{ required: true })} />
+                                {errors.password && <div className="text-red-500 text-sm">Password is required.</div>}
                                 <Button
-                                    className="mt-5 tracking-wide font-semibold bg-foreground text-gray-100 w-full py-4 rounded-lg hover:text-black hover:bg-white transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
+                                    className="w-full tracking-wide font-semibold bg-foreground text-gray-100 py-4 rounded-lg hover:text-black hover:bg-white transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                                 >
-                                    <UserPlus />
-                                    <span className="ml-3">Sign Up</span>
+                                    <UserPlus className="w-5 h-5 mr-2" />
+                                    <span>Sign Up</span>
                                 </Button>
-                                <motion.p variants={itemVariants} className="mt-6 text-xs text-gray-600 text-center">
+                                <motion.p variants={itemVariants} className="text-xs text-gray-600 text-center">
                                     I agree to abide by Car Service's{' '}
                                     <a href="#" className="border-b border-gray-500 border-dotted">
                                         Terms of Service
@@ -146,7 +146,7 @@ const SignUp: React.FC = () => {
                                         Privacy Policy
                                     </a>
                                 </motion.p>
-                                <motion.p variants={itemVariants} className="mt-8 text-sm text-gray-600 text-center">
+                                <motion.p variants={itemVariants} className="text-sm text-gray-600 text-center">
                                     Already have an account?{' '}
                                     <Link to="/auth/signin" className="font-medium text-primary-600 hover:underline">
                                         Sign in
@@ -156,9 +156,9 @@ const SignUp: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 bg-primary text-center hidden lg:flex">
+                <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center">
                     <div
-                        className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
+                        className="w-full h-full bg-contain bg-center bg-no-repeat"
                         style={{
                             backgroundImage:
                                 "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
