@@ -1,12 +1,19 @@
-import React,{ useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/components/ui/table"
-import { Eye,Plus,Edit,Trash2 } from "lucide-react"
-import { useNavigate } from 'react-router-dom'
-import AddProductDialog from '@/components/Dashboard/AddProductDialog'
-import UpdateProductDialog from '@/components/Dashboard/UpdateProductDialog'
-import { demoProducts,Product } from '@/types/Product'
-import { motion,AnimatePresence } from 'framer-motion'
+import React,{ useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Eye,Plus,Edit,Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import AddProductDialog from "@/components/Dashboard/AddProductDialog";
+import UpdateProductDialog from "@/components/Dashboard/UpdateProductDialog";
+import { Product } from "@/types/Product";
+import { motion,AnimatePresence } from "framer-motion";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,49 +23,94 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import {
+    useGetAllProductsQuery,
+    useCreateProductMutation,
+    useUpdateProductMutation,
+    useDeleteProductMutation,
+} from "@/redux/features/product/productApi";
+import { toast } from "sonner";
 
 const ProductManagement: React.FC = () => {
-    const [products,setProducts] = useState<Product[]>(demoProducts)
-    const [isAddDialogOpen,setIsAddDialogOpen] = useState(false)
-    const [isUpdateDialogOpen,setIsUpdateDialogOpen] = useState(false)
-    const [isDeleteDialogOpen,setIsDeleteDialogOpen] = useState(false)
-    const [currentProduct,setCurrentProduct] = useState<Product | null>(null)
-    const [productToDelete,setProductToDelete] = useState<string | null>(null)
-    const navigate = useNavigate()
+    const {
+        data: products,
+        isLoading,
+        isError,
+        error,
+    } = useGetAllProductsQuery(undefined);
+    const [createProduct] = useCreateProductMutation();
+    const [updateProduct] = useUpdateProductMutation();
+    const [deleteProduct] = useDeleteProductMutation();
+
+    const [isAddDialogOpen,setIsAddDialogOpen] = useState(false);
+    const [isUpdateDialogOpen,setIsUpdateDialogOpen] = useState(false);
+    const [isDeleteDialogOpen,setIsDeleteDialogOpen] = useState(false);
+    const [currentProduct,setCurrentProduct] = useState<Product | null>(null);
+    const [productToDelete,setProductToDelete] = useState<string | null>(null);
+
+    //console.log(products)
+
+    const navigate = useNavigate();
 
     const handleDeleteProduct = (id: string) => {
-        setProductToDelete(id)
-        setIsDeleteDialogOpen(true)
-    }
+        setProductToDelete(id);
+        setIsDeleteDialogOpen(true);
+    };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (productToDelete) {
-            setProducts(prev => prev.filter(p => p.id !== productToDelete))
-            setIsDeleteDialogOpen(false)
-            setProductToDelete(null)
+            try {
+                await deleteProduct(productToDelete).unwrap();
+                toast.success("Product deleted successfully");
+                setIsDeleteDialogOpen(false);
+                setProductToDelete(null);
+            } catch (error) {
+                toast.error("Failed to delete product");
+            }
         }
-    }
+    };
 
     const handleViewProductDetails = (productId: string) => {
-        navigate(`/products/${productId}`) // Adjust this path as needed
-    }
+        navigate(`/products/${productId}`); // Adjust this path as needed
+    };
 
-    const handleAddProduct = (newProduct: Product) => {
-        setProducts(prev => [...prev,newProduct])
-        setIsAddDialogOpen(false)
-    }
+    const handleAddProduct = async (newProduct: Product) => {
+        try {
+            await createProduct(newProduct).unwrap();
+            toast.success("Product added successfully");
+            setIsAddDialogOpen(false);
+        } catch (error) {
+            console.error("Error adding product:",error);
+            toast.error("Failed to add product");
+        }
+        console.log("newProduct",newProduct);
+    };
 
-    const handleUpdateProduct = (updatedProduct: Product) => {
-        setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p))
-        setIsUpdateDialogOpen(false)
-        setCurrentProduct(null)
-    }
+    const handleUpdateProduct = async (updatedProduct: Product) => {
+        try {
+            await updateProduct({
+                id: updatedProduct._id,
+                data: updatedProduct,
+            }).unwrap();
+            toast.success("Product updated successfully");
+            setIsUpdateDialogOpen(false);
+            setCurrentProduct(null);
+        } catch (error) {
+            toast.error("Failed to update product");
+        }
+    };
 
     const handleOpenUpdateDialog = (product: Product) => {
-        setCurrentProduct(product)
-        setIsUpdateDialogOpen(true)
+        setCurrentProduct(product);
+        setIsUpdateDialogOpen(true);
+    };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
     }
+
+    console.log(error);
 
     return (
         <motion.div
@@ -75,65 +127,98 @@ const ProductManagement: React.FC = () => {
                 Product Management
             </motion.h1>
             <div>
-                <Button onClick={() => setIsAddDialogOpen(true)} className="mb-6 hover:scale-105 transition-transform duration-200">
+                <Button
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="mb-6 hover:scale-105 transition-transform duration-200"
+                >
                     <Plus className="mr-2 h-4 w-4" /> Add New Product
                 </Button>
             </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Image</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Stock</TableHead>
-                        <TableHead>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <AnimatePresence>
-                        {products.map((product) => (
-                            <motion.tr
-                                key={product.id}
-                                initial={{ opacity: 0,y: 20 }}
-                                animate={{ opacity: 1,y: 0 }}
-                                exit={{ opacity: 0,y: -20 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                <TableCell>
-                                    {product.images.length > 0 && (
-                                        <img src={product.images[0]} alt={product.name} className="w-16 h-16 object-cover rounded" />
-                                    )}
-                                </TableCell>
-                                <TableCell>{product.name}</TableCell>
-                                <TableCell>${product.price.toFixed(2)}</TableCell>
-                                <TableCell>{product.category}</TableCell>
-                                <TableCell>{product.stock}</TableCell>
-                                <TableCell>
-                                    <motion.div className="flex space-x-2">
-                                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                            <Button variant="outline" onClick={() => handleViewProductDetails(product.id)}>
-                                                <Eye className="w-4 h-4 mr-2" /> View
-                                            </Button>
+            {isError ? (
+                <div>Product Data not found</div>
+            ) : products && products.data.length <= 0 ? (
+                <div>Product Data not found</div>
+            ) : (
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Image</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Brand</TableHead>
+                            <TableHead>Stock</TableHead>
+                            <TableHead>Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <AnimatePresence>
+                            {products?.data.map((product: Product) => (
+                                <motion.tr
+                                    key={product._id}
+                                    initial={{ opacity: 0,y: 20 }}
+                                    animate={{ opacity: 1,y: 0 }}
+                                    exit={{ opacity: 0,y: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <TableCell>
+                                        {product.photos.length > 0 && (
+                                            <img
+                                                src={product.photos[0]}
+                                                alt={product.name}
+                                                className="w-16 h-16 object-cover rounded"
+                                            />
+                                        )}
+                                    </TableCell>
+                                    <TableCell>{product.name}</TableCell>
+                                    <TableCell>${product.price.toFixed(2)}</TableCell>
+                                    <TableCell>{product.category}</TableCell>
+                                    <TableCell>{product.brand}</TableCell>
+                                    <TableCell>{product.stock}</TableCell>
+                                    <TableCell>
+                                        <motion.div className="flex space-x-2">
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                            >
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => handleViewProductDetails(product._id)}
+                                                >
+                                                    <Eye className="w-4 h-4 mr-2" /> View
+                                                </Button>
+                                            </motion.div>
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                            >
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => handleOpenUpdateDialog(product)}
+                                                >
+                                                    <Edit className="w-4 h-4 mr-2" /> Edit
+                                                </Button>
+                                            </motion.div>
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                            >
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={() => handleDeleteProduct(product._id)}
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                                </Button>
+                                            </motion.div>
                                         </motion.div>
-                                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                            <Button variant="outline" onClick={() => handleOpenUpdateDialog(product)}>
-                                                <Edit className="w-4 h-4 mr-2" /> Edit
-                                            </Button>
-                                        </motion.div>
-                                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                            <Button variant="destructive" onClick={() => handleDeleteProduct(product.id)}>
-                                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                                            </Button>
-                                        </motion.div>
-                                    </motion.div>
-                                </TableCell>
-                            </motion.tr>
-                        ))}
-                    </AnimatePresence>
-                </TableBody>
-            </Table>
+                                    </TableCell>
+                                </motion.tr>
+                            ))}
+                        </AnimatePresence>
+                    </TableBody>
+                </Table>
+            )}
 
             <AddProductDialog
                 isOpen={isAddDialogOpen}
@@ -144,30 +229,37 @@ const ProductManagement: React.FC = () => {
             <UpdateProductDialog
                 isOpen={isUpdateDialogOpen}
                 onClose={() => {
-                    setIsUpdateDialogOpen(false)
-                    setCurrentProduct(null)
+                    setIsUpdateDialogOpen(false);
+                    setCurrentProduct(null);
                 }}
                 onSave={handleUpdateProduct}
                 product={currentProduct}
             />
 
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the product
-                            from our servers.
+                            This action cannot be undone. This will permanently delete the
+                            product from our servers.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setProductToDelete(null)}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>Continue</AlertDialogAction>
+                        <AlertDialogCancel onClick={() => setProductToDelete(null)}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete}>
+                            Continue
+                        </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
         </motion.div>
-    )
-}
+    );
+};
 
-export default ProductManagement
+export default ProductManagement;

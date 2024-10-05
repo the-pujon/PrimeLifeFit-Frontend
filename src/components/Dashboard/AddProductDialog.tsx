@@ -1,9 +1,10 @@
-import React,{ useState } from 'react'
+import React from 'react'
 import { Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Product } from '@/types/Product'
 import ProductForm from './ProductForm'
 import { motion,AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 
 interface AddProductDialogProps {
     isOpen: boolean
@@ -12,27 +13,40 @@ interface AddProductDialogProps {
 }
 
 const AddProductDialog: React.FC<AddProductDialogProps> = ({ isOpen,onClose,onSave }) => {
-    const [newProduct,setNewProduct] = useState<Product>({
-        id: String(Date.now()),
-        name: '',
-        price: 0,
-        category: '',
-        description: '',
-        images: [],
-        stock: 0,
-    })
+    const uploadImage = async (file: File): Promise<string> => {
+        const formData = new FormData()
+        formData.append('image',file)
 
-    const handleSave = () => {
-        onSave(newProduct)
-        setNewProduct({
-            id: String(Date.now()),
-            name: '',
-            price: 0,
-            category: '',
-            description: '',
-            images: [],
-            stock: 0,
+        const response = await fetch('https://api.imgbb.com/1/upload?key=3771a5eec87b0ec98c5b62855eab4fae',{
+            method: 'POST',
+            body: formData,
         })
+
+        const data = await response.json()
+        return data.data.url
+    }
+
+    const handleSave = async (productData: Product) => {
+
+        console.log(productData)
+        try {
+            const uploadPromises = productData.photos.map(photo => uploadImage(photo.file))
+            const uploadedUrls = await Promise.all(uploadPromises)
+
+            const productWithUrls = {
+                ...productData,
+                photos: uploadedUrls,
+            }
+
+            console.log(productWithUrls)
+
+            onSave(productWithUrls)
+            toast.success('Product added successfully')
+            onClose()
+        } catch (error) {
+            console.error('Error uploading images:',error)
+            toast.error('Failed to upload images')
+        }
     }
 
     return (
@@ -48,14 +62,14 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({ isOpen,onClose,onSa
                             <DialogHeader>
                                 <DialogTitle>Add New Product</DialogTitle>
                             </DialogHeader>
-                            <ProductForm product={newProduct} setProduct={setNewProduct} />
+                            <ProductForm onSubmit={handleSave} />
                             <DialogFooter className="flex justify-end">
                                 <div className="flex gap-3">
                                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                         <Button onClick={onClose} variant="outline">Cancel</Button>
                                     </motion.div>
                                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button onClick={handleSave}>Add</Button>
+                                        <Button type="submit" form="product-form">Add</Button>
                                     </motion.div>
                                 </div>
                             </DialogFooter>

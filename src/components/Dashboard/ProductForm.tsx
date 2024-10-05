@@ -4,81 +4,118 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
+import { useForm,Controller } from "react-hook-form"
 import { Product } from '@/types/Product'
+import { categories } from '@/utils/Categories'
+import { Select,SelectContent,SelectItem,SelectTrigger,SelectValue } from "@/components/ui/select"
 
 interface ProductFormProps {
-    product: Product
-    setProduct: React.Dispatch<React.SetStateAction<Product>>
+    onSubmit: (data: Product) => void
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ product,setProduct }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
+    const { control,handleSubmit,setValue,watch } = useForm<Product>({
+        defaultValues: {
+            name: '',
+            price: 0,
+            category: '',
+            brand: '',
+            description: '',
+            photos: [],
+            stock: 0,
+        }
+    })
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const photos = watch('photos')
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
         if (files) {
-            const newImages = Array.from(files).map(file => URL.createObjectURL(file))
-            setProduct(prev => ({
-                ...prev,
-                images: [...prev.images,...newImages]
+            const newPhotos = Array.from(files).map(file => ({
+                file,
+                preview: URL.createObjectURL(file)
             }))
+            setValue('photos',[...photos,...newPhotos])
         }
     }
 
     const handleRemoveImage = (index: number) => {
-        setProduct(prev => ({
-            ...prev,
-            images: prev.images.filter((_,i) => i !== index)
-        }))
+        setValue('photos',photos.filter((_,i) => i !== index))
+    }
+
+    const onSubmitForm = (data: Product) => {
+        // Convert price and stock to numbers
+        const formattedData = {
+            ...data,
+            price: Number(data.price),
+            stock: Number(data.stock)
+        }
+        onSubmit(formattedData)
     }
 
     return (
-        <div className="grid gap-4 py-4">
+        <form id="product-form" onSubmit={handleSubmit(onSubmitForm)} className="grid gap-4 py-4">
             <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="sm:text-right">Name</Label>
-                <Input
-                    id="name"
-                    value={product.name}
-                    onChange={(e) => setProduct(prev => ({ ...prev,name: e.target.value }))}
-                    className="col-span-1 sm:col-span-3"
+                <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => <Input {...field} className="col-span-1 sm:col-span-3" />}
                 />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                 <Label htmlFor="price" className="sm:text-right">Price</Label>
-                <Input
-                    id="price"
-                    type="number"
-                    value={product.price}
-                    onChange={(e) => setProduct(prev => ({ ...prev,price: Number(e.target.value) }))}
-                    className="col-span-1 sm:col-span-3"
+                <Controller
+                    name="price"
+                    control={control}
+                    render={({ field }) => <Input {...field} type="number" step="0.01" className="col-span-1 sm:col-span-3" />}
                 />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                 <Label htmlFor="category" className="sm:text-right">Category</Label>
-                <Input
-                    id="category"
-                    value={product.category}
-                    onChange={(e) => setProduct(prev => ({ ...prev,category: e.target.value }))}
-                    className="col-span-1 sm:col-span-3"
+                <Controller
+                    name="category"
+                    control={control}
+                    render={({ field }) => (
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger className="col-span-1 sm:col-span-3">
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map((category) => (
+                                    <SelectItem key={category.id} value={category.title}>
+                                        {category.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
                 />
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
+                <Label htmlFor="brand" className="sm:text-right">brand</Label>
+                <Controller
+                    name="brand"
+                    control={control}
+                    render={({ field }) => <Input {...field} className="col-span-1 sm:col-span-3" />}
+                />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                 <Label htmlFor="description" className="sm:text-right">Description</Label>
-                <Textarea
-                    id="description"
-                    value={product.description}
-                    onChange={(e) => setProduct(prev => ({ ...prev,description: e.target.value }))}
-                    className="col-span-1 sm:col-span-3"
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => <Textarea {...field} className="col-span-1 sm:col-span-3" />}
                 />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                 <Label htmlFor="stock" className="sm:text-right">Stock</Label>
-                <Input
-                    id="stock"
-                    type="number"
-                    value={product.stock}
-                    onChange={(e) => setProduct(prev => ({ ...prev,stock: Number(e.target.value) }))}
-                    className="col-span-1 sm:col-span-3"
+                <Controller
+                    name="stock"
+                    control={control}
+                    render={({ field }) => <Input {...field} type="number" className="col-span-1 sm:col-span-3" />}
                 />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
@@ -88,18 +125,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product,setProduct }) => {
                         type="file"
                         multiple
                         accept="image/*"
-                        onChange={handleImageUpload}
+                        onChange={handleImageSelect}
                         className="hidden"
                         ref={fileInputRef}
                     />
                     <Button type="button" onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto">
-                        Upload Images
+                        Select Images
                     </Button>
                     <div className="mt-4 flex flex-wrap gap-2">
-                        {product.images.map((image,index) => (
+                        {photos.map((photo,index) => (
                             <div key={index} className="relative">
-                                <img src={image} alt={`Preview ${index}`} className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded" />
+                                <img src={photo.preview} alt={`Preview ${index}`} className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded" />
                                 <button
+                                    type="button"
                                     onClick={() => handleRemoveImage(index)}
                                     className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
                                 >
@@ -110,7 +148,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product,setProduct }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     )
 }
 
