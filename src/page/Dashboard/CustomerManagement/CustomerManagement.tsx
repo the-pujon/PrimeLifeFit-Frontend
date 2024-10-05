@@ -20,42 +20,50 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useGetAllUsersQuery,useUpdateUserRoleMutation } from '@/redux/features/auth/authApi'
+import { toast } from 'sonner'
+import Loading from '@/components/ui/Loading'
 
 interface Customer {
-    id: string;
+    _id: string;
     name: string;
     email: string;
     role: "admin" | "user";
     totalBuy: number;
 }
 
-const demoCustomers: Customer[] = [
-    { id: "1",name: "John Doe",email: "john@example.com",role: "user",totalBuy: 5 },
-    { id: "2",name: "Jane Smith",email: "jane@example.com",role: "admin",totalBuy: 10 },
-    { id: "3",name: "Alice Johnson",email: "alice@example.com",role: "user",totalBuy: 3 },
-    // Add more mock customers as needed
-]
-
 const CustomerManagement: React.FC = () => {
-    const [customers,setCustomers] = useState<Customer[]>(demoCustomers)
+    const { data: customers,isLoading,isError,error } = useGetAllUsersQuery(undefined)
+    const [updateUserRole] = useUpdateUserRoleMutation()
     const [isChangeRoleDialogOpen,setIsChangeRoleDialogOpen] = useState(false)
     const [customerToChangeRole,setCustomerToChangeRole] = useState<Customer | null>(null)
+
 
     const handleChangeRole = (customer: Customer) => {
         setCustomerToChangeRole(customer)
         setIsChangeRoleDialogOpen(true)
     }
 
-    const confirmChangeRole = () => {
+    const confirmChangeRole = async () => {
         if (customerToChangeRole) {
-            setCustomers(prev => prev.map(c =>
-                c.id === customerToChangeRole.id
-                    ? { ...c,role: c.role === 'user' ? 'admin' : 'user' }
-                    : c
-            ))
-            setIsChangeRoleDialogOpen(false)
-            setCustomerToChangeRole(null)
+            try {
+                await updateUserRole({
+                    userId: customerToChangeRole._id,
+                    role: customerToChangeRole.role === 'user' ? 'admin' : 'user'
+                }).unwrap()
+                setIsChangeRoleDialogOpen(false)
+                setCustomerToChangeRole(null)
+                toast.success("User role updated successfully")
+            } catch (error) {
+                console.error('Failed to update user role:',error)
+                toast.error("Failed to update user role")
+            }
         }
+    }
+
+    if (isError) {
+        console.error(error)
+        return <div>Error loading customers</div>
     }
 
     return (
@@ -65,6 +73,9 @@ const CustomerManagement: React.FC = () => {
             exit={{ opacity: 0 }}
             className="p-8 bg-gray-50 min-h-screen wrapper"
         >
+            {
+                isLoading && <Loading />
+            }
             <motion.h1
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}
@@ -85,9 +96,9 @@ const CustomerManagement: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                     <AnimatePresence>
-                        {customers.map((customer) => (
+                        {customers?.data?.map((customer: Customer) => (
                             <motion.tr
-                                key={customer.id}
+                                key={customer._id}
                                 initial={{ opacity: 0,y: 20 }}
                                 animate={{ opacity: 1,y: 0 }}
                                 exit={{ opacity: 0,y: -20 }}

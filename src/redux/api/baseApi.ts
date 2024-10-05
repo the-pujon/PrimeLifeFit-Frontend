@@ -33,6 +33,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
     if (result.error) {
       if (result.error.status === 401) {
         console.error("Unauthorized access. Please check your credentials.");
+        toast.error("You are not authorized to access this resource.");
       } else if (result.error.status === 403) {
         console.error(
           "Forbidden. You do not have permission to access this resource."
@@ -61,7 +62,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["services", "bookings", "users", "slots", "reviews"],
+  tagTypes: ["auth", "bookings", "users", "slots", "reviews"],
   endpoints: () => ({}),
 });
 

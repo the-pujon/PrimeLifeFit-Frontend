@@ -2,7 +2,6 @@ import { baseApi } from "@/redux/api/baseApi";
 
 const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // existing endpoints
     signup: builder.mutation({
       query: (data) => ({
         url: "/auth/signup",
@@ -19,12 +18,12 @@ const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // new endpoints
     getAllUsers: builder.query({
       query: () => ({
         url: "/auth/users",
         method: "GET",
       }),
+      providesTags: ["auth"],
     }),
 
     updateUserRole: builder.mutation({
@@ -33,6 +32,7 @@ const authApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: { role },
       }),
+      invalidatesTags: ["auth"],
     }),
   }),
 });
