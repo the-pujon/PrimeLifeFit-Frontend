@@ -1,21 +1,25 @@
-import React,{ useRef } from 'react'
+import React,{ useRef,useEffect } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { useForm,Controller } from "react-hook-form"
-import { Product } from '@/types/Product'
+import { Product,ProductFormData } from '@/types/Product'
 import { categories } from '@/utils/Categories'
 import { Select,SelectContent,SelectItem,SelectTrigger,SelectValue } from "@/components/ui/select"
 
 interface ProductFormProps {
-    onSubmit: (data: Product) => void
+    onSubmit: (data: ProductFormData) => void
+    initialData?: Product
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
-    const { control,handleSubmit,setValue,watch } = useForm<Product>({
-        defaultValues: {
+const ProductForm: React.FC<ProductFormProps> = ({ onSubmit,initialData }) => {
+    const { control,handleSubmit,setValue,watch,reset } = useForm<ProductFormData>({
+        defaultValues: initialData ? {
+            ...initialData,
+            photos: initialData.photos.map(url => ({ preview: url }))
+        } : {
             name: '',
             price: 0,
             category: '',
@@ -25,6 +29,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
             stock: 0,
         }
     })
+
+    useEffect(() => {
+        if (initialData) {
+            reset({
+                ...initialData,
+                photos: initialData.photos.map(url => ({ preview: url }))
+            })
+        }
+    },[initialData,reset])
+
     const fileInputRef = useRef<HTMLInputElement>(null)
     const photos = watch('photos')
 
@@ -43,8 +57,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
         setValue('photos',photos.filter((_,i) => i !== index))
     }
 
-    const onSubmitForm = (data: Product) => {
-        // Convert price and stock to numbers
+    const onSubmitForm = (data: ProductFormData) => {
         const formattedData = {
             ...data,
             price: Number(data.price),

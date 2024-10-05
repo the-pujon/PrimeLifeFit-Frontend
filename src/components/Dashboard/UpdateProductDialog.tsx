@@ -1,9 +1,10 @@
-import React,{ useState,useEffect } from 'react'
+import React from 'react'
 import { Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import ProductForm from './ProductForm'
-import { Product } from '@/types/Product'
+import { Product,ProductFormData } from '@/types/Product'
 import { motion,AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 
 interface UpdateProductDialogProps {
     isOpen: boolean
@@ -13,28 +14,46 @@ interface UpdateProductDialogProps {
 }
 
 const UpdateProductDialog: React.FC<UpdateProductDialogProps> = ({ isOpen,onClose,onSave,product }) => {
-    const [editedProduct,setEditedProduct] = useState<Product | null>(null)
+    const handleSave = async (updatedProduct: ProductFormData) => {
+        try {
+            const newPhotos = updatedProduct.photos.filter(photo => photo.file)
+            const oldPhotos = updatedProduct.photos.filter(photo => !photo.file)
 
-    useEffect(() => {
-        if (product) {
-            setEditedProduct({ ...product })
+            const uploadPromises = newPhotos.map(photo => uploadImage(photo.file!))
+            const uploadedUrls = await Promise.all(uploadPromises)
+
+            const finalProduct: Product = {
+                ...updatedProduct,
+                photos: [...oldPhotos.map(photo => photo.preview),...uploadedUrls]
+            }
+
+            onSave(finalProduct)
+            //toast.success('Product updated successfully')
+            onClose()
+        } catch (error) {
+            console.error('Error updating product:',error)
+            toast.error('Failed to update product')
         }
-    },[product])
+    }
 
-    if (!editedProduct) return null
+    const uploadImage = async (file: File): Promise<string> => {
+        const formData = new FormData()
+        formData.append('image',file)
 
-    const handleSave = () => {
-        if (editedProduct) {
-            onSave(editedProduct)
-        }
-        onClose()
+        const response = await fetch('https://api.imgbb.com/1/upload?key=3771a5eec87b0ec98c5b62855eab4fae',{
+            method: 'POST',
+            body: formData,
+        })
+
+        const data = await response.json()
+        return data.data.url
     }
 
     return (
         <AnimatePresence>
-            {isOpen && editedProduct && (
+            {isOpen && product && (
                 <Dialog open={isOpen} onOpenChange={onClose}>
-                    <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
                         <motion.div
                             initial={{ opacity: 0,y: 20 }}
                             animate={{ opacity: 1,y: 0 }}
@@ -44,8 +63,8 @@ const UpdateProductDialog: React.FC<UpdateProductDialogProps> = ({ isOpen,onClos
                                 <DialogTitle>Edit Product</DialogTitle>
                             </DialogHeader>
                             <ProductForm
-                                product={editedProduct}
-                                setProduct={(updatedProduct) => setEditedProduct(updatedProduct as Product)}
+                                onSubmit={handleSave}
+                                initialData={product}
                             />
                             <DialogFooter className="flex justify-end">
                                 <div className="flex gap-3">
@@ -53,7 +72,7 @@ const UpdateProductDialog: React.FC<UpdateProductDialogProps> = ({ isOpen,onClos
                                         <Button onClick={onClose} variant="outline">Cancel</Button>
                                     </motion.div>
                                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button onClick={handleSave}>Update</Button>
+                                        <Button type="submit" form="product-form">Update</Button>
                                     </motion.div>
                                 </div>
                             </DialogFooter>

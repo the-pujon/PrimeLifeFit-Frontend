@@ -1,5 +1,5 @@
 export interface Product {
-  _id: string;
+  _id?: string;
   name: string;
   price: number;
   category: string;
@@ -7,6 +7,10 @@ export interface Product {
   description: string;
   photos: string[];
   stock: number;
+}
+
+export interface ProductFormData extends Omit<Product, "photos"> {
+  photos: Array<{ file?: File; preview: string }>;
 }
 
 //export const demoProducts: Product[] = [

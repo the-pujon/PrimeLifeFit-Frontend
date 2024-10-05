@@ -31,13 +31,13 @@ import {
     useDeleteProductMutation,
 } from "@/redux/features/product/productApi";
 import { toast } from "sonner";
+import Loading from "@/components/ui/Loading";
 
 const ProductManagement: React.FC = () => {
     const {
         data: products,
         isLoading,
         isError,
-        error,
     } = useGetAllProductsQuery(undefined);
     const [createProduct] = useCreateProductMutation();
     const [updateProduct] = useUpdateProductMutation();
@@ -49,7 +49,6 @@ const ProductManagement: React.FC = () => {
     const [currentProduct,setCurrentProduct] = useState<Product | null>(null);
     const [productToDelete,setProductToDelete] = useState<string | null>(null);
 
-    //console.log(products)
 
     const navigate = useNavigate();
 
@@ -72,32 +71,33 @@ const ProductManagement: React.FC = () => {
     };
 
     const handleViewProductDetails = (productId: string) => {
-        navigate(`/products/${productId}`); // Adjust this path as needed
+        navigate(`/products/${productId}`);
     };
 
     const handleAddProduct = async (newProduct: Product) => {
+        const toastId = toast.loading("Adding product...");
         try {
             await createProduct(newProduct).unwrap();
-            toast.success("Product added successfully");
+            toast.success("Product added successfully",{ id: toastId });
             setIsAddDialogOpen(false);
         } catch (error) {
             console.error("Error adding product:",error);
-            toast.error("Failed to add product");
+            toast.error("Failed to add product",{ id: toastId });
         }
-        console.log("newProduct",newProduct);
     };
 
     const handleUpdateProduct = async (updatedProduct: Product) => {
+        const toastId = toast.loading("Updating product...");
         try {
             await updateProduct({
                 id: updatedProduct._id,
                 data: updatedProduct,
             }).unwrap();
-            toast.success("Product updated successfully");
+            toast.success("Product updated successfully",{ id: toastId });
             setIsUpdateDialogOpen(false);
             setCurrentProduct(null);
         } catch (error) {
-            toast.error("Failed to update product");
+            toast.error("Failed to update product",{ id: toastId });
         }
     };
 
@@ -106,11 +106,7 @@ const ProductManagement: React.FC = () => {
         setIsUpdateDialogOpen(true);
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
 
-    console.log(error);
 
     return (
         <motion.div
@@ -119,6 +115,7 @@ const ProductManagement: React.FC = () => {
             exit={{ opacity: 0 }}
             className="p-8 bg-gray-50 min-h-screen wrapper"
         >
+            {isLoading && <Loading />}
             <motion.h1
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}
@@ -184,7 +181,7 @@ const ProductManagement: React.FC = () => {
                                             >
                                                 <Button
                                                     variant="outline"
-                                                    onClick={() => handleViewProductDetails(product._id)}
+                                                    onClick={() => handleViewProductDetails(product._id as string)}
                                                 >
                                                     <Eye className="w-4 h-4 mr-2" /> View
                                                 </Button>
@@ -206,7 +203,7 @@ const ProductManagement: React.FC = () => {
                                             >
                                                 <Button
                                                     variant="destructive"
-                                                    onClick={() => handleDeleteProduct(product._id)}
+                                                    onClick={() => handleDeleteProduct(product._id as string)}
                                                 >
                                                     <Trash2 className="w-4 h-4 mr-2" /> Delete
                                                 </Button>

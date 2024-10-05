@@ -1,7 +1,7 @@
 import React from 'react'
 import { Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Product } from '@/types/Product'
+import { Product,ProductFormData } from '@/types/Product'
 import ProductForm from './ProductForm'
 import { motion,AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -26,22 +26,20 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({ isOpen,onClose,onSa
         return data.data.url
     }
 
-    const handleSave = async (productData: Product) => {
-
-        console.log(productData)
+    const handleSave = async (productData: ProductFormData) => {
         try {
-            const uploadPromises = productData.photos.map(photo => uploadImage(photo.file))
+            const uploadPromises = productData.photos
+                .filter(photo => photo.file)
+                .map(photo => uploadImage(photo.file!))
             const uploadedUrls = await Promise.all(uploadPromises)
 
-            const productWithUrls = {
+            const productWithUrls: Product = {
                 ...productData,
                 photos: uploadedUrls,
             }
 
-            console.log(productWithUrls)
-
             onSave(productWithUrls)
-            toast.success('Product added successfully')
+            //toast.success('Product added successfully')
             onClose()
         } catch (error) {
             console.error('Error uploading images:',error)
@@ -53,7 +51,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({ isOpen,onClose,onSa
         <AnimatePresence>
             {isOpen && (
                 <Dialog open={isOpen} onOpenChange={onClose}>
-                    <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
                         <motion.div
                             initial={{ opacity: 0,y: 20 }}
                             animate={{ opacity: 1,y: 0 }}
