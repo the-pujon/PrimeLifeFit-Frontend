@@ -2,30 +2,44 @@ import { baseApi } from "@/redux/api/baseApi";
 
 const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    //for signup
+    // existing endpoints
     signup: builder.mutation({
-      query: (data) => {
-        console.log(data);
-        return {
-          url: "/auth/signup",
-          method: "POST",
-          body: data,
-        };
-      },
+      query: (data) => ({
+        url: "/auth/signup",
+        method: "POST",
+        body: data,
+      }),
     }),
 
-    //for signin
     signin: builder.mutation({
-      query: (data) => {
-        //console.log(data);
-        return {
-          url: "/auth/login",
-          method: "POST",
-          body: data,
-        };
-      },
+      query: (data) => ({
+        url: "/auth/login",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    // new endpoints
+    getAllUsers: builder.query({
+      query: () => ({
+        url: "/auth/users",
+        method: "GET",
+      }),
+    }),
+
+    updateUserRole: builder.mutation({
+      query: ({ userId, role }) => ({
+        url: `/auth/users/${userId}/role`,
+        method: "PATCH",
+        body: { role },
+      }),
     }),
   }),
 });
 
-export const { useSigninMutation, useSignupMutation } = authApi;
+export const {
+  useSigninMutation,
+  useSignupMutation,
+  useGetAllUsersQuery,
+  useUpdateUserRoleMutation,
+} = authApi;
