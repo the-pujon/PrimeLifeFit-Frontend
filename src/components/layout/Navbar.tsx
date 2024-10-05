@@ -1,9 +1,8 @@
-import React,{ useState,useEffect,useRef } from 'react'
-import { Search,User,ShoppingCart,Dumbbell,Menu,X,LogOut,LayoutDashboard } from 'lucide-react'
+import { useState,useEffect } from 'react'
+import { User,ShoppingCart,Dumbbell,Menu,X,LogOut,LayoutDashboard } from 'lucide-react'
 import { Link,useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import CartSheet from '../CartSheet/CartSheet'
 import {
     DropdownMenu,
@@ -13,17 +12,23 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { motion,AnimatePresence } from 'framer-motion'
 import SearchBar from '../SearchBar/SearchBar'
+import { useAppDispatch,useAppSelector } from '@/redux/hook'
+import { isTokenExpired } from '@/utils/isTokenExpired'
+import { signOut,useCurrentToken } from '@/redux/features/auth/authSlice'
 
 export default function Navbar() {
     const [activeItem,setActiveItem] = useState('home')
     const [isScrolled,setIsScrolled] = useState(false)
     const [isCartOpen,setIsCartOpen] = useState(false)
     const [isMenuOpen,setIsMenuOpen] = useState(false)
-    const [searchQuery,setSearchQuery] = useState('')
-    const [isLoggedIn,setIsLoggedIn] = useState(true) // Replace with actual auth state
     const cartItemCount = 2 // Replace with actual cart item count
     const navigate = useNavigate()
-    const searchInputRef = useRef<HTMLInputElement>(null)
+
+    const dispatch = useAppDispatch();
+    const token = useAppSelector(useCurrentToken);
+    const expiredToken = isTokenExpired(token);
+
+    console.log(expiredToken)
 
     useEffect(() => {
         const handleScroll = () => {
@@ -39,36 +44,22 @@ export default function Navbar() {
         { name: 'About us',to: '/about-us' },
     ]
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (searchQuery.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
-            setSearchQuery('')
-            if (searchInputRef.current) {
-                searchInputRef.current.blur()
-            }
-        }
-    }
 
     const handleLogout = () => {
-        // Implement logout logic here
-        setIsLoggedIn(false)
+        dispatch(signOut())
     }
 
     return (
-        <motion.nav
+        <nav
             className={`sticky top-0 z-50 ${isScrolled ? 'py-2 bg-primary/90 backdrop-blur-md' : 'py-4 bg-primary'
                 } shadow-lg`}
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ type: 'spring',stiffness: 120,damping: 20 }}
         >
             <div className="wrapper px-4 mx-auto max-w-7xl">
                 <div className="flex items-center justify-between">
                     <motion.div
                         initial={{ opacity: 0,x: -20 }}
                         animate={{ opacity: 1,x: 0 }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 1 }}
                     >
                         <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-white">
                             <Dumbbell className="w-8 h-8" />
@@ -76,11 +67,11 @@ export default function Navbar() {
                         </Link>
                     </motion.div>
 
-                    <div className="hidden md:flex items-center space-x-6">
+                    <div className="hidden lg:flex items-center space-x-6">
                         <motion.div
                             initial={{ opacity: 0,x: 20 }}
                             animate={{ opacity: 1,x: 0 }}
-                            transition={{ duration: 0.5,delay: 0.2 }}
+                            transition={{ duration: 1,delay: 0.2 }}
                         >
                             <SearchBar />
                         </motion.div>
@@ -91,7 +82,7 @@ export default function Navbar() {
                                     key={item.name}
                                     initial={{ opacity: 0,y: -20 }}
                                     animate={{ opacity: 1,y: 0 }}
-                                    transition={{ duration: 0.5,delay: 0.1 * (index + 1) }}
+                                    transition={{ duration: 1,delay: 0.1 * (index + 1) }}
                                 >
                                     <Link
                                         to={item.to}
@@ -110,12 +101,12 @@ export default function Navbar() {
                             ))}
                         </ul>
 
-                        {isLoggedIn ? (
+                        {!expiredToken ? (
                             <motion.div
                                 className="flex items-center space-x-4"
                                 initial={{ opacity: 0,x: 20 }}
                                 animate={{ opacity: 1,x: 0 }}
-                                transition={{ duration: 0.5,delay: 0.4 }}
+                                transition={{ duration: 1,delay: 0.4 }}
                             >
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -145,17 +136,17 @@ export default function Navbar() {
                             <motion.div
                                 initial={{ opacity: 0,x: 20 }}
                                 animate={{ opacity: 1,x: 0 }}
-                                transition={{ duration: 0.5,delay: 0.4 }}
+                                transition={{ duration: 1,delay: 0.4 }}
                             >
                                 <Button asChild variant="secondary" className="bg-white text-primary hover:bg-white/90 font-semibold transition-all duration-300">
-                                    <Link to="/signin">Sign In</Link>
+                                    <Link to="/auth/signin">Sign In</Link>
                                 </Button>
                             </motion.div>
                         )}
                     </div>
 
-                    <div className="flex items-center space-x-4 md:hidden">
-                        {isLoggedIn ? (
+                    <div className="flex items-center space-x-4 lg:hidden">
+                        {!expiredToken ? (
                             <>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -183,7 +174,7 @@ export default function Navbar() {
                             </>
                         ) : (
                             <Button asChild variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold transition-all duration-300">
-                                <Link to="/signin">Sign In</Link>
+                                <Link to="/auth/signin">Sign In</Link>
                             </Button>
                         )}
                         <Button
@@ -200,7 +191,7 @@ export default function Navbar() {
                 <AnimatePresence>
                     {isMenuOpen && (
                         <motion.div
-                            className="md:hidden mt-4 pb-4"
+                            className="lg:hidden mt-4 pb-4 z-10"
                             initial={{ opacity: 0,height: 0 }}
                             animate={{ opacity: 1,height: 'auto' }}
                             exit={{ opacity: 0,height: 0 }}
@@ -237,6 +228,6 @@ export default function Navbar() {
             </div>
 
             <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
-        </motion.nav>
+        </nav>
     )
 }

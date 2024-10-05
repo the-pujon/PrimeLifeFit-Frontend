@@ -7,11 +7,12 @@ import { SubmitHandler,useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-//import Loading from '@/components/ui/Loading';
 import { useAppDispatch } from '@/redux/hook';
 import { setUser } from '@/redux/features/auth/authSlice';
 import { useSignupMutation } from '@/redux/features/auth/authApi';
 import Loading from '@/components/ui/Loading';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 type Inputs = {
     name: string;
@@ -57,44 +58,72 @@ const SignUp: React.FC = () => {
         toast.error(apiError.data?.message || "Something went wrong");
     }
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                duration: 0.5,
+                when: "beforeChildren",
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20,opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { type: 'spring',stiffness: 300,damping: 24 }
+        }
+    };
+
     return (
         <div className="relative min-h-screen bg-foreground text-gray-900 flex justify-center">
             {isLoading && <Loading />}
-            <div className="max-w-screen-xl m-0 sm:m-10 bg-primary shadow sm:rounded-lg flex justify-center flex-1">
+            <motion.div
+                className="max-w-screen-xl m-0 sm:m-10 bg-primary shadow sm:rounded-lg flex justify-center flex-1"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
                 <div className="lg:w-1/2 xl:w-5/12 pt-24">
-                    <div>
+                    <motion.div variants={itemVariants}>
                         <p className='text-white text-center text-5xl font-bold'>Car Service</p>
-                    </div>
+                    </motion.div>
                     <div className="mt-0 flex flex-col items-center">
-                        <h1 className="text-2xl xl:text-3xl font-extrabold">Sign up</h1>
+                        <motion.h1 variants={itemVariants} className="text-2xl xl:text-3xl font-extrabold">Sign up</motion.h1>
                         <div className="w-full flex-1 mt-8">
                             <div className="flex flex-col items-center">
-                                <button
+                                <motion.button
+                                    variants={itemVariants}
                                     className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-background text-black flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                                 >
                                     <div className="bg-white p-2 rounded-full">
                                         <Google />
                                     </div>
                                     <span className="ml-4">Sign Up with Google</span>
-                                </button>
+                                </motion.button>
 
-                                <button
+                                <motion.button
+                                    variants={itemVariants}
                                     className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-background text-black flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
                                 >
                                     <div className="bg-white p-1 rounded-full">
                                         <Github />
                                     </div>
                                     <span className="ml-4">Sign Up with GitHub</span>
-                                </button>
+                                </motion.button>
                             </div>
 
-                            <div className="my-12 text-center">
+                            <motion.div variants={itemVariants} className="my-12 text-center">
                                 <div className="leading-none px-2 inline-block text-sm text-gray-200 tracking-wide font-medium transform translate-y-1/2">
                                     Or sign up with e-mail
                                 </div>
-                            </div>
+                            </motion.div>
 
-                            <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-xs">
+                            <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-xs">
                                 <Input className='backdrop-blur-sm my-2 text-black' required type="name" placeholder="Name" id="name" {...register('name',{ required: true })} />
                                 {errors.name && <div>Name is required.</div>}
                                 <Input className='backdrop-blur-sm my-2 text-black' required type="email" placeholder="Email" id="email" {...register('email',{ required: true })} />
@@ -105,9 +134,9 @@ const SignUp: React.FC = () => {
                                     className="mt-5 tracking-wide font-semibold bg-foreground text-gray-100 w-full py-4 rounded-lg hover:text-black hover:bg-white transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                                 >
                                     <UserPlus />
-                                    <span className="ml-3">Sign In</span>
+                                    <span className="ml-3">Sign Up</span>
                                 </Button>
-                                <p className="mt-6 text-xs text-gray-600 text-center">
+                                <motion.p variants={itemVariants} className="mt-6 text-xs text-gray-600 text-center">
                                     I agree to abide by Car Service's{' '}
                                     <a href="#" className="border-b border-gray-500 border-dotted">
                                         Terms of Service
@@ -116,8 +145,14 @@ const SignUp: React.FC = () => {
                                     <a href="#" className="border-b border-gray-500 border-dotted">
                                         Privacy Policy
                                     </a>
-                                </p>
-                            </form>
+                                </motion.p>
+                                <motion.p variants={itemVariants} className="mt-8 text-sm text-gray-600 text-center">
+                                    Already have an account?{' '}
+                                    <Link to="/auth/signin" className="font-medium text-primary-600 hover:underline">
+                                        Sign in
+                                    </Link>
+                                </motion.p>
+                            </motion.form>
                         </div>
                     </div>
                 </div>
@@ -130,7 +165,7 @@ const SignUp: React.FC = () => {
                         }}
                     ></div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };
