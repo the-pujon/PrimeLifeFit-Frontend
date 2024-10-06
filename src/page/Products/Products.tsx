@@ -1,53 +1,61 @@
-'use client'
-
-import React,{ useState,useEffect } from 'react'
-import { Input } from "@/components/ui/input"
+import { useState,useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Select,SelectContent,SelectItem,SelectTrigger,SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
 import { motion,AnimatePresence } from 'framer-motion'
-import { Search,X,Filter } from 'lucide-react'
+import { X,Filter } from 'lucide-react'
 import ProductCard from '@/components/ui/ProductCard'
-import Image from "@/assets/hero1.jpg"
+import { useGetAllProductsQuery } from '@/redux/features/product/productApi'
+import { categories } from '@/utils/Categories'
+import { useDebounce } from '@/hooks/useDebounce'
+import FilterBar from '@/components/Products/FilterBar'
 
-
-const mockProducts = [
-    { id: 1,name: "Treadmill Pro",price: 999.99,category: "Cardio",image: Image,inStock: true },
-    { id: 2,name: "Dumbbell Set",price: 149.99,category: "Strength",image: Image,inStock: true },
-    { id: 3,name: "Yoga Mat",price: 29.99,category: "Yoga",image: Image,inStock: false },
-    { id: 4,name: "Exercise Bike",price: 499.99,category: "Cardio",image: Image,inStock: true },
-    { id: 5,name: "Resistance Bands",price: 19.99,category: "Strength",image: Image,inStock: true },
-]
-
-const categories = ["Cardio","Strength","Yoga"]
+interface Product {
+    _id: string;
+    name: string;
+    price: number;
+    category: string;
+    brand: string;
+    description: string;
+    photos: string[];
+    stock: number;
+}
 
 export default function Products() {
-    const [products,setProducts] = useState(mockProducts)
     const [searchTerm,setSearchTerm] = useState("")
+    const debouncedSearchTerm = useDebounce(searchTerm,300)
+    const { data,isLoading,error } = useGetAllProductsQuery(debouncedSearchTerm)
+    const [filteredProducts,setFilteredProducts] = useState<Product[]>([])
     const [selectedCategories,setSelectedCategories] = useState<string[]>([]);
     const [priceRange,setPriceRange] = useState([0,1000])
     const [sortOrder,setSortOrder] = useState("asc")
     const [isFilterModalOpen,setIsFilterModalOpen] = useState(false)
 
-    const filterProducts = () => {
-        const filteredProducts = mockProducts.filter(product =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (selectedCategories.length === 0 || selectedCategories.includes(product.category)) &&
-            product.price >= priceRange[0] && product.price <= priceRange[1]
-        )
 
-        filteredProducts.sort((a,b) =>
+    const filterProducts = () => {
+        if (!data || !data.data) {
+            console.log('No data available to filter')
+            return
+        }
+
+        const filtered = data.data.filter((product: Product) => {
+            const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category)
+            const priceMatch = product.price >= priceRange[0] && product.price <= priceRange[1]
+
+            return categoryMatch && priceMatch
+        })
+
+        filtered.sort((a: Product,b: Product) =>
             sortOrder === "asc" ? a.price - b.price : b.price - a.price
         )
 
-        setProducts(filteredProducts)
+        setFilteredProducts(filtered)
     }
 
     useEffect(() => {
-        filterProducts()
-    },[searchTerm,selectedCategories,priceRange,sortOrder])
+        if (data && data.data) {
+            filterProducts()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[data,selectedCategories,priceRange,sortOrder])
 
     const handleCategoryChange = (category: string) => {
         setSelectedCategories(prev =>
@@ -67,72 +75,6 @@ export default function Products() {
     const toggleFilterModal = () => {
         setIsFilterModalOpen(!isFilterModalOpen)
     }
-
-    const FilterContent = () => (
-        <>
-            <div>
-                <h2 className="text-xl font-semibold mb-2">Search</h2>
-                <div className="relative">
-                    <Input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                    />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
-            </div>
-
-            <div>
-                <h2 className="text-xl font-semibold mb-2">Categories</h2>
-                {categories.map(category => (
-                    <div key={category} className="flex items-center space-x-2 mb-2">
-                        <Checkbox
-                            id={category}
-                            checked={selectedCategories.includes(category)}
-                            onCheckedChange={() => handleCategoryChange(category)}
-                        />
-                        <Label htmlFor={category}>{category}</Label>
-                    </div>
-                ))}
-            </div>
-
-            <div>
-                <h2 className="text-xl font-semibold mb-2">Price Range</h2>
-                <Slider
-                    min={0}
-                    max={1000}
-                    step={10}
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                    className="mb-2"
-                />
-                <div className="flex justify-between text-sm text-gray-600">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
-                </div>
-            </div>
-
-            <div>
-                <h2 className="text-xl font-semibold mb-2">Sort by Price</h2>
-                <Select value={sortOrder} onValueChange={setSortOrder}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Sort order" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="asc">Low to High</SelectItem>
-                        <SelectItem value="desc">High to Low</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <Button onClick={clearFilters} variant="outline" className="w-full hover:bg-gray-200 transition-colors">
-                Clear Filters
-                <X className="ml-2 h-4 w-4" />
-            </Button>
-        </>
-    )
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -159,7 +101,18 @@ export default function Products() {
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5,delay: 0.2 }}
                 >
-                    <FilterContent />
+                    <FilterBar
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        selectedCategories={selectedCategories}
+                        handleCategoryChange={handleCategoryChange}
+                        priceRange={priceRange}
+                        setPriceRange={setPriceRange}
+                        sortOrder={sortOrder}
+                        setSortOrder={setSortOrder}
+                        clearFilters={clearFilters}
+                        categories={categories}
+                    />
                 </motion.div>
 
                 {/* Filter modal for small screens */}
@@ -184,7 +137,19 @@ export default function Products() {
                                         <X className="h-6 w-6" />
                                     </Button>
                                 </div>
-                                <FilterContent />
+
+                                <FilterBar
+                                    searchTerm={searchTerm}
+                                    setSearchTerm={setSearchTerm}
+                                    selectedCategories={selectedCategories}
+                                    handleCategoryChange={handleCategoryChange}
+                                    priceRange={priceRange}
+                                    setPriceRange={setPriceRange}
+                                    sortOrder={sortOrder}
+                                    setSortOrder={setSortOrder}
+                                    clearFilters={clearFilters}
+                                    categories={categories}
+                                />
                             </motion.div>
                         </motion.div>
                     )}
@@ -196,20 +161,25 @@ export default function Products() {
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5,delay: 0.4 }}
                 >
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {products.map((product,index) => (
-                            <motion.div
-                                key={product.id}
-                                initial={{ opacity: 0,y: 20 }}
-                                animate={{ opacity: 1,y: 0 }}
-                                transition={{ duration: 0.5,delay: index * 0.1 }}
-                            >
-                                <ProductCard product={product} />
-                            </motion.div>
-                        ))}
-                    </div>
-                    {products.length === 0 && (
+                    {isLoading ? (
+                        <p className="text-center text-gray-500 mt-8 text-lg">Loading products...</p>
+                    ) : error ? (
+                        <p className="text-center text-red-500 mt-8 text-lg">Error loading products: {error.toString()}</p>
+                    ) : filteredProducts.length === 0 ? (
                         <p className="text-center text-gray-500 mt-8 text-lg">No products found matching your criteria.</p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredProducts.map((product,index) => (
+                                <motion.div
+                                    key={product._id}
+                                    initial={{ opacity: 0,y: 20 }}
+                                    animate={{ opacity: 1,y: 0 }}
+                                    transition={{ duration: 0.5,delay: index * 0.1 }}
+                                >
+                                    <ProductCard product={product} />
+                                </motion.div>
+                            ))}
+                        </div>
                     )}
                 </motion.div>
             </div>

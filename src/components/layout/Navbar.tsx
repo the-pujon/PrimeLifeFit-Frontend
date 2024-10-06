@@ -28,7 +28,6 @@ export default function Navbar() {
     const token = useAppSelector(useCurrentToken);
     const expiredToken = isTokenExpired(token);
 
-    console.log(expiredToken)
 
     useEffect(() => {
         const handleScroll = () => {

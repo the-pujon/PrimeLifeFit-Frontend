@@ -1,22 +1,23 @@
-import React from 'react'
+
 import { Card,CardContent,CardHeader,CardTitle } from './card'
 import { Badge } from './badge'
 import { Button } from './button'
 import { ArrowRight,Eye,ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { Product } from '@/types/Product'
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product }: { product: Product }) => {
     return (
         <div>
             <Card className="group relative flex flex-col overflow-hidden rounded-none transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-gradient-to-br from-white to-gray-50">
                 <CardHeader className="p-0">
                     <div className="relative overflow-hidden">
                         <img
-                            src={product.image}
+                            src={product.photos[0]}
                             alt={product.name}
                             className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-110"
                         />
-                        {!product.inStock && (
+                        {product.stock === 0 && (
                             <Badge variant="destructive" className="absolute top-4 right-4 text-sm px-3 py-1 bg-red-500 text-white">
                                 Out of Stock
                             </Badge>
@@ -29,7 +30,7 @@ const ProductCard = ({ product }) => {
                                     size="icon"
                                     className="rounded-full w-12 h-12 bg-white text-primary hover:bg-primary hover:text-white transition-all duration-300"
                                 >
-                                    <Link to={`/products/${product.id}`}>
+                                    <Link to={`/products/${product._id}`}>
                                         <Eye className="w-6 h-6" />
                                         <span className="sr-only">View Details</span>
                                     </Link>
@@ -53,11 +54,11 @@ const ProductCard = ({ product }) => {
                         <Badge variant="default">{product.category}</Badge>
                         <Badge variant="outline">{product.brand ? product.brand : "N/A"}</Badge>
                     </div>
-                    <CardTitle className="text-2xl mb-2 transition-colors duration-300 group-hover:text-primary">{product.name}</CardTitle>
+                    <CardTitle className="text-xl font-medium mb-2 transition-colors duration-300 group-hover:text-primary">{product.name}</CardTitle>
                     <p className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
                     <div className="mt-4 flex justify-between items-center">
                         <Badge variant="outline" className="text-sm px-2 py-1">
-                            {product.inStock ? 'In Stock' : 'Out of Stock'}
+                            {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
                         </Badge>
                         <Button
                             variant="ghost"
