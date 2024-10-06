@@ -1,4 +1,3 @@
-
 import { Card,CardContent,CardHeader,CardTitle } from './card'
 import { Badge } from './badge'
 import { Button } from './button'
@@ -8,15 +7,23 @@ import { Product } from '@/types/Product'
 import { useAppDispatch } from '@/redux/hook'
 import { addItem } from '@/redux/features/cart/cartSlice'
 import { toast } from 'sonner'
+import { useSelector } from 'react-redux'
+import { CurrentCart } from '@/redux/features/cart/cartSlice'
 
 const ProductCard = ({ product }: { product: Product }) => {
-
     const dispatch = useAppDispatch();
+    const cartItems = useSelector(CurrentCart);
 
+    const isMaxQuantityReached = () => {
+        const cartItem = cartItems.find(item => item._id === product._id);
+        return cartItem && cartItem.quantity >= product.stock;
+    };
 
     const handleAddToCart = (selectedProduct: Product) => {
-        dispatch(addItem(selectedProduct));
-        toast.success("Product added to cart");
+        if (!isMaxQuantityReached()) {
+            dispatch(addItem(selectedProduct));
+            toast.success("Product added to cart");
+        }
     }
 
     return (
@@ -52,7 +59,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                                     size="icon"
                                     className="rounded-full w-12 h-12 bg-white text-primary hover:bg-primary hover:text-white transition-all duration-300"
                                     onClick={() => handleAddToCart(product)}
-                                    disabled={product.stock <= 0}
+                                    disabled={product.stock <= 0 || isMaxQuantityReached()}
                                 >
                                     <ShoppingCart className="w-6 h-6" />
                                     <span className="sr-only">Add to Cart</span>

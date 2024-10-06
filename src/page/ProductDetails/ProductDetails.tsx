@@ -7,14 +7,18 @@ import { Card,CardContent } from "@/components/ui/card";
 import { ChevronLeft,ChevronRight,ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Loading from '@/components/ui/Loading';
+import { useAppDispatch } from '@/redux/hook';
+import { addItem } from '@/redux/features/cart/cartSlice';
+import { useSelector } from 'react-redux';
+import { CurrentCart } from '@/redux/features/cart/cartSlice';
 
 const ProductDetails: React.FC = () => {
     const { id } = useParams();
     const { data,error,isLoading } = useGetSingleProductQuery(id);
+    const dispatch = useAppDispatch();
+    const cartItems = useSelector(CurrentCart);
 
     const productData = data?.data;
-
-    console.log(productData)
 
     const [emblaRef,emblaApi] = useEmblaCarousel({ loop: true });
     const [isZoomed,setIsZoomed] = useState(false);
@@ -36,6 +40,17 @@ const ProductDetails: React.FC = () => {
     const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(),[emblaApi]);
     const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(),[emblaApi]);
 
+    const isMaxQuantityReached = () => {
+        if (!productData) return false;
+        const cartItem = cartItems.find(item => item._id === productData._id);
+        return cartItem && cartItem.quantity >= productData.stock;
+    };
+
+    const handleAddToCart = () => {
+        if (productData && !isMaxQuantityReached()) {
+            dispatch(addItem(productData));
+        }
+    };
 
     if (error) return <div>Error loading product details</div>;
 
@@ -121,7 +136,12 @@ const ProductDetails: React.FC = () => {
                                         {productData?.stock > 0 ? ' In Stock' : ' Out of Stock'}
                                     </span>
                                 </p>
-                                <Button className="w-full rounded-none outline-none" size="lg">
+                                <Button
+                                    className="w-full rounded-none outline-none"
+                                    size="lg"
+                                    onClick={handleAddToCart}
+                                    disabled={!productData || productData.stock <= 0 || isMaxQuantityReached()}
+                                >
                                     <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
                                 </Button>
                             </CardContent>
