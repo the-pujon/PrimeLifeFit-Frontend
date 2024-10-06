@@ -1,4 +1,4 @@
-import React,{ useState,useEffect } from 'react'
+import React,{ useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Card,CardContent } from "@/components/ui/card"
@@ -6,60 +6,63 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup,RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
-//import { useToast } from "@/components/ui/use-toast"
 import { motion } from "framer-motion"
 import { CreditCard,Truck,ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
+import { useForm } from 'react-hook-form'
+import { useAppSelector } from '@/redux/hook'
+import { CurrentCart } from '@/redux/features/cart/cartSlice'
 
-interface CheckoutItem {
-    id: number
+interface FormData {
     name: string
-    price: number
-    quantity: number
+    email: string
+    phone: string
+    address: string
+    city: string
 }
 
 const Checkout = () => {
-    const [cartItems,setCartItems] = useState<CheckoutItem[]>([])
-    const [totalPrice,setTotalPrice] = useState(0)
-    const [paymentMethod,setPaymentMethod] = useState('cash')
+    const { register,handleSubmit } = useForm<FormData>()
+    const cartItems = useAppSelector(CurrentCart)
+    const [totalPrice,setTotalPrice] = React.useState(0)
+    const [paymentMethod,setPaymentMethod] = React.useState<'COD' | 'Stripe'>('COD')
     const navigate = useNavigate()
-    //const { toast } = useToast()
+    const shippingCost = 120;
 
     useEffect(() => {
-        // Fetch cart items from your state management solution or API
-        // For this example, we'll use dummy data
-        const dummyCartItems = [
-            { id: 1,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1 },
-            { id: 2,name: 'Yoga Mat',price: 29.99,quantity: 2 },
-        ]
-        setCartItems(dummyCartItems)
-        setTotalPrice(dummyCartItems.reduce((sum,item) => sum + item.price * item.quantity,0))
-    },[])
+        setTotalPrice(cartItems.reduce((sum,item) => sum + item.price * item.quantity,0))
+    },[cartItems])
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget)
-        const userData = Object.fromEntries(formData.entries())
+    const onSubmit = async (data: FormData) => {
+        const orderData = {
+            totalAmount: totalPrice + shippingCost,
+            paymentMethod,
+            city: data.city,
+            address: data.address,
+            phone: data.phone,
+            email: data.email,
+            products: cartItems.map(item => ({
+                productId: item._id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+            })),
+        };
 
-        if (paymentMethod === 'cash') {
-            // Process cash on delivery order
-            // Here you would typically send this data to your backend
-            console.log('Processing cash on delivery order:',{ userData,cartItems })
-            toast({
-                title: "Order Placed Successfully",
-                description: "Your order will be delivered soon.",
-            })
-            navigate('/success')
-        } else if (paymentMethod === 'stripe') {
-            // Redirect to Stripe payment
-            // In a real application, you would create a Stripe session here
-            console.log('Redirecting to Stripe payment')
-            toast({
-                title: "Redirecting to Stripe",
-                description: "You will be redirected to complete your payment.",
-            })
-            // For this example, we'll just navigate to a success page
-            navigate('/success')
+        if (paymentMethod === 'Stripe') {
+            toast.message("Stripe Payment Method Not Supported",{
+                description: "Please select Cash on Delivery.",
+            });
+            return;
+        }
+
+        try {
+            navigate('/success',{ state: { orderData } });
+        } catch (error) {
+            console.error("Error placing order:",error);
+            toast.message("Error",{
+                description: "There was an issue placing your order. Please try again.",
+            });
         }
     }
 
@@ -80,9 +83,9 @@ const Checkout = () => {
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <Card className="shadow-lg rounded-none">
+                    <Card className="shadow-lg rounded-lg">
                         <CardContent className="p-8">
-                            <form onSubmit={handleSubmit} className="space-y-8">
+                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                                 <div>
                                     <h2 className="text-2xl font-semibold mb-6 flex items-center text-gray-800">
                                         <ShoppingBag className="w-6 h-6 mr-2 text-primary" />
@@ -91,19 +94,23 @@ const Checkout = () => {
                                     <div className="grid gap-6 sm:grid-cols-2">
                                         <div>
                                             <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
-                                            <Input id="name" name="name" required className="mt-1" />
+                                            <Input id="name" {...register('name',{ required: true })} className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
                                         </div>
                                         <div>
                                             <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
-                                            <Input id="email" name="email" type="email" required className="mt-1" />
+                                            <Input id="email" type="email" {...register('email',{ required: true })} className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
                                         </div>
                                         <div>
                                             <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
-                                            <Input id="phone" name="phone" type="tel" required className="mt-1" />
+                                            <Input id="phone" type="tel" {...register('phone',{ required: true })} className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
                                         </div>
                                         <div>
                                             <Label htmlFor="address" className="text-sm font-medium text-gray-700">Delivery Address</Label>
-                                            <Input id="address" name="address" required className="mt-1" />
+                                            <Input id="address" {...register('address',{ required: true })} className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="city" className="text-sm font-medium text-gray-700">City</Label>
+                                            <Input id="city" {...register('city',{ required: true })} className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
                                         </div>
                                     </div>
                                 </div>
@@ -113,24 +120,24 @@ const Checkout = () => {
                                         <CreditCard className="w-6 h-6 mr-2 text-primary" />
                                         Payment Method
                                     </h2>
-                                    <RadioGroup defaultValue="cash" onValueChange={setPaymentMethod} className="space-y-4">
+                                    <RadioGroup defaultValue="COD" onValueChange={(value) => setPaymentMethod(value as "COD" | "Stripe")} className="space-y-4">
                                         <div className="flex items-center space-x-3 bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
-                                            <RadioGroupItem value="cash" id="cash" />
-                                            <Label htmlFor="cash" className="flex items-center cursor-pointer">
+                                            <RadioGroupItem value="COD" id="COD" />
+                                            <Label htmlFor="COD" className="flex items-center cursor-pointer">
                                                 <Truck className="w-5 h-5 mr-2 text-primary" />
                                                 Cash on Delivery
                                             </Label>
                                         </div>
                                         <div className="flex items-center space-x-3 bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
-                                            <RadioGroupItem value="stripe" id="stripe" />
-                                            <Label htmlFor="stripe" className="flex items-center cursor-pointer">
+                                            <RadioGroupItem value="Stripe" id="Stripe" />
+                                            <Label htmlFor="Stripe" className="flex items-center cursor-pointer">
                                                 <CreditCard className="w-5 h-5 mr-2 text-primary" />
                                                 Pay with Stripe
                                             </Label>
                                         </div>
                                     </RadioGroup>
                                 </div>
-                                <Button type="submit" className="w-full mt-8 text-lg font-semibold py-6 bg-primary hover:bg-primary/90 transition-colors">
+                                <Button type="submit" className="w-full mt-8 text-lg font-semibold py-6 bg-primary hover:bg-primary/90 transition-colors rounded-lg">
                                     Place Order
                                 </Button>
                             </form>
@@ -142,7 +149,7 @@ const Checkout = () => {
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <Card className="shadow-lg rounded-none">
+                    <Card className="shadow-lg rounded-lg">
                         <CardContent className="p-8">
                             <h2 className="text-2xl font-semibold mb-6 flex items-center text-gray-800">
                                 <ShoppingBag className="w-6 h-6 mr-2 text-purple-600" />
@@ -150,15 +157,19 @@ const Checkout = () => {
                             </h2>
                             <div className="space-y-4">
                                 {cartItems.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center">
+                                    <div key={item._id} className="flex justify-between items-center">
                                         <span className="text-gray-600">{item.name} x {item.quantity}</span>
                                         <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 ))}
+                                <div className="flex justify-between items-center text-base sm:text-lg">
+                                    <span className="text-gray-600">Shipping:</span>
+                                    <span className="font-medium">${shippingCost.toFixed(2)}</span>
+                                </div>
                                 <Separator className="my-4" />
                                 <div className="flex justify-between items-center text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span className="text-2xl text-primary">${totalPrice.toFixed(2)}</span>
+                                    <span className="text-2xl text-primary">${(totalPrice + shippingCost).toFixed(2)}</span>
                                 </div>
                             </div>
                         </CardContent>
