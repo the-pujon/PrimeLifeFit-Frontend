@@ -7,6 +7,7 @@ import { useGetAllProductsQuery } from '@/redux/features/product/productApi'
 import { categories } from '@/utils/Categories'
 import { useDebounce } from '@/hooks/useDebounce'
 import FilterBar from '@/components/Products/FilterBar'
+import { useLocation } from 'react-router-dom'
 
 interface Product {
     _id: string;
@@ -20,6 +21,7 @@ interface Product {
 }
 
 export default function Products() {
+    const location = useLocation();
     const [searchTerm,setSearchTerm] = useState("")
     const debouncedSearchTerm = useDebounce(searchTerm,300)
     const { data,isLoading,error } = useGetAllProductsQuery(debouncedSearchTerm)
@@ -29,6 +31,14 @@ export default function Products() {
     const [sortOrder,setSortOrder] = useState("asc")
     const [isFilterModalOpen,setIsFilterModalOpen] = useState(false)
 
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const categoryParam = params.get('category');
+        if (categoryParam) {
+            setSelectedCategories([categoryParam]);
+        }
+    },[location]);
 
     const filterProducts = () => {
         if (!data || !data.data) {

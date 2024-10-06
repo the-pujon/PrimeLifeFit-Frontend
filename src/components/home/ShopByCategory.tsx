@@ -1,20 +1,18 @@
-import React,{ useState,useEffect,useCallback } from 'react'
+import { useState,useEffect,useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft,ChevronRight } from 'lucide-react'
-import Image from "@/assets/hero1.jpg"
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { categories } from '@/utils/Categories'
 
 
-const equipmentData = [
-    { title: "Benches",image: Image },
-    { title: "Squat & Power Racks",image: Image },
-    { title: "Cable Machines",image: Image },
-    { title: "Barbells",image: Image },
-    { title: "Body Weight & Gymnastics",image: Image },
-    { title: "Lower Body & Legs",image: Image },
-]
 
 export default function ShopByCategory() {
+    const navigate = useNavigate();
+
+    const handleCategoryClick = (category: string) => {
+        navigate(`/products?category=${encodeURIComponent(category)}`);
+    };
+
     const [emblaRef,emblaApi] = useEmblaCarousel({ loop: false,align: 'start' })
     const [prevBtnEnabled,setPrevBtnEnabled] = useState(false)
     const [nextBtnEnabled,setNextBtnEnabled] = useState(true)
@@ -40,8 +38,12 @@ export default function ShopByCategory() {
             <p className="text-lg text-gray-600 mb-8 font-serif">Explore our wide range of fitness gear to find exactly what you need</p>
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-2">
-                    {equipmentData.map((item,index) => (
-                        <Link to={'/'} key={index} className="flex-[0_0_20%] min-w-0 border">
+                    {categories.map((item,index) => (
+                        <div
+                            key={index}
+                            className="flex-[0_0_20%] min-w-0 border cursor-pointer"
+                            onClick={() => handleCategoryClick(item.title)}
+                        >
                             <div className="bg-none rounded-none overflow-hidden">
                                 <div className="overflow-hidden">
                                     <img
@@ -56,7 +58,7 @@ export default function ShopByCategory() {
                                     <h3 className="text-lg font-semibold text-primary">{item.title}</h3>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     ))}
                 </div>
             </div>

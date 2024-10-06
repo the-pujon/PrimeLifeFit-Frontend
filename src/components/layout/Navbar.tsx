@@ -51,7 +51,6 @@ export default function Navbar() {
         dispatch(signOut())
     }
 
-    console.log(expiredToken)
 
     return (
         <nav

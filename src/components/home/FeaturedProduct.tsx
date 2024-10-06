@@ -1,54 +1,16 @@
 
-//import { toast } from 'sonner'
-import Image from "@/assets/hero1.jpg"
 import ProductCard from '../ui/ProductCard'
 import { Button } from '../ui/button'
 import { Link } from 'react-router-dom'
+import { useGetAllProductsQuery } from "@/redux/features/product/productApi"
+import { Product } from "@/types/Product"
+import Loading from '../ui/Loading'
 
-const featuredProducts = [
-    {
-        id: 1,
-        name: "Premium Dumbbell Set",
-        price: 299.99,
-        image: Image,
-        inStock: true
-    },
-    {
-        id: 2,
-        name: "Adjustable Bench",
-        price: 199.99,
-        image: Image,
-        inStock: true
-    },
-    {
-        id: 3,
-        name: "Olympic Barbell",
-        price: 249.99,
-        image: Image,
-        inStock: false
-    },
-    {
-        id: 4,
-        name: "Olympic Barbell",
-        price: 249.99,
-        image: Image,
-        inStock: false
-    }
-]
 
 const FeaturedProduct = () => {
 
-    //const [products] = useState(featuredProducts)
+    const { data,isLoading } = useGetAllProductsQuery(undefined)
 
-    //const handleAddToCart = (productId: number) => {
-    //    const product = products.find(p => p.id === productId)
-    //    if (product) {
-    //        //toast({
-    //        //    //title: "Added to Cart",
-    //        //    //description: `${product.name} has been added to your cart.`,
-    //        //})
-    //    }
-    //}
     return (
         <div className='wrapper'>
             <div className='flex justify-between items-center'>
@@ -60,11 +22,13 @@ const FeaturedProduct = () => {
                     <Link to={'/'}>View All</Link>
                 </Button>
             </div>
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>{
-                featuredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))
-            }</div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+
+                {isLoading ? <Loading /> :
+                    data?.data?.slice(0,4).map((product: Product) => (
+                        <ProductCard key={product._id} product={product} />
+                    ))
+                }</div>
         </div>
     )
 }
