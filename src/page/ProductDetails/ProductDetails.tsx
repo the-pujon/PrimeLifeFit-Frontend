@@ -8,17 +8,24 @@ import { ChevronLeft,ChevronRight,ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Loading from '@/components/ui/Loading';
 import { useAppDispatch } from '@/redux/hook';
-import { addItem } from '@/redux/features/cart/cartSlice';
+import { addItem,selectProductStock } from '@/redux/features/cart/cartSlice';
 import { useSelector } from 'react-redux';
 import { CurrentCart } from '@/redux/features/cart/cartSlice';
+import { RootState } from '@/redux/store';
+//import { selectProductStock } from '@/redux/features/product/productSelectors';
 
 const ProductDetails: React.FC = () => {
     const { id } = useParams();
     const { data,error,isLoading } = useGetSingleProductQuery(id);
     const dispatch = useAppDispatch();
     const cartItems = useSelector(CurrentCart);
-
     const productData = data?.data;
+
+    const currentStock = useSelector((state: RootState) =>
+        selectProductStock(state,id,productData?.stock ?? 0)
+    );
+
+    console.log(currentStock)
 
     const [emblaRef,emblaApi] = useEmblaCarousel({ loop: true });
     const [isZoomed,setIsZoomed] = useState(false);
@@ -132,8 +139,8 @@ const ProductDetails: React.FC = () => {
                                 <p className="text-3xl font-bold text-green-600">${productData?.price?.toFixed(2)}</p>
                                 <p className="text-lg">
                                     Availability:
-                                    <span className={`font-semibold ${productData?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {productData?.stock > 0 ? ' In Stock' : ' Out of Stock'}
+                                    <span className={`font-semibold ${!productData || productData.stock <= 0 || isMaxQuantityReached() ? 'text-red-600' : 'text-green-600'}`}>
+                                        {!productData || productData.stock <= 0 || isMaxQuantityReached() ? ' Out of Stock' : ' In Stock'}
                                     </span>
                                 </p>
                                 <Button
@@ -164,7 +171,7 @@ const ProductDetails: React.FC = () => {
                         <ul className="list-disc list-inside space-y-2 text-gray-700">
                             <li>Category: {productData?.category}</li>
                             <li>Brand: {productData?.brand}</li>
-                            <li>In Stock: {productData?.stock} units</li>
+                            <li>In Stock: {currentStock} units</li>
                         </ul>
                     </motion.div>
                 </motion.div>

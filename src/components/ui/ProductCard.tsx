@@ -1,28 +1,28 @@
-import { Card,CardContent,CardHeader,CardTitle } from './card'
-import { Badge } from './badge'
-import { Button } from './button'
-import { ArrowRight,Eye,ShoppingCart } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { Product } from '@/types/Product'
-import { useAppDispatch } from '@/redux/hook'
-import { addItem } from '@/redux/features/cart/cartSlice'
-import { toast } from 'sonner'
-import { useSelector } from 'react-redux'
-import { CurrentCart } from '@/redux/features/cart/cartSlice'
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { Card,CardContent,CardHeader,CardTitle } from './card';
+import { Badge } from './badge';
+import { Button } from './button';
+import { ArrowRight,Eye,ShoppingCart } from 'lucide-react';
+import { Product } from '@/types/Product';
+import { useAppDispatch } from '@/redux/hook';
+import { addItem,selectProductStock } from '@/redux/features/cart/cartSlice';
+import { toast } from 'sonner';
+import { RootState } from '@/redux/store';
 
 const ProductCard = ({ product }: { product: Product }) => {
     const dispatch = useAppDispatch();
-    const cartItems = useSelector(CurrentCart);
+    const currentStock = useSelector((state: RootState) => selectProductStock(state,product._id,product.stock));
 
-    const isMaxQuantityReached = () => {
-        const cartItem = cartItems.find(item => item._id === product._id);
-        return cartItem && cartItem.quantity >= product.stock;
-    };
+    const isOutOfStock = currentStock <= 0;
 
     const handleAddToCart = (selectedProduct: Product) => {
-        if (!isMaxQuantityReached()) {
+        if (!isOutOfStock) {
             dispatch(addItem(selectedProduct));
             toast.success("Product added to cart");
+        } else {
+            toast.error(`This product is out of stock`);
         }
     }
 
@@ -36,7 +36,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                             alt={product.name}
                             className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-110"
                         />
-                        {product.stock === 0 && (
+                        {product.stock <= 0 || isOutOfStock && (
                             <Badge variant="destructive" className="absolute top-4 right-4 text-sm px-3 py-1 bg-red-500 text-white">
                                 Out of Stock
                             </Badge>
@@ -59,7 +59,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                                     size="icon"
                                     className="rounded-full w-12 h-12 bg-white text-primary hover:bg-primary hover:text-white transition-all duration-300"
                                     onClick={() => handleAddToCart(product)}
-                                    disabled={product.stock <= 0 || isMaxQuantityReached()}
+                                    disabled={isOutOfStock}
                                 >
                                     <ShoppingCart className="w-6 h-6" />
                                     <span className="sr-only">Add to Cart</span>
@@ -77,7 +77,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <p className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
                     <div className="mt-4 flex justify-between items-center">
                         <Badge variant="outline" className="text-sm px-2 py-1">
-                            {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                            {isOutOfStock ? 'Out of Stock' : `In Stock: ${currentStock}`}
                         </Badge>
                         <Button
                             variant="ghost"
