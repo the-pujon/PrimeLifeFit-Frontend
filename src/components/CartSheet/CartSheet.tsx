@@ -15,15 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-
-interface CartItem {
-  id: number
-  name: string
-  price: number
-  quantity: number
-  stock: number
-  image: string
-}
+import { useAppDispatch,useAppSelector } from '@/redux/hook'
+import { CurrentCart,removeItem,updateItemQuantity } from '@/redux/features/cart/cartSlice'
 
 interface CartSheetProps {
   open: boolean
@@ -31,28 +24,17 @@ interface CartSheetProps {
 }
 
 const CartSheet: React.FC<CartSheetProps> = ({ open,onOpenChange }) => {
-  const [cartItems,setCartItems] = useState<CartItem[]>([
-    { id: 1,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: '/images/dumbbell-set.jpg' },
-    { id: 2,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: '/images/yoga-mat.jpg' },
-    { id: 3,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: '/images/dumbbell-set.jpg' },
-    //{ id: 4,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: '/images/yoga-mat.jpg' },
-    //{ id: 5,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: '/images/dumbbell-set.jpg' },
-    //{ id: 6,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: '/images/yoga-mat.jpg' },
-    //{ id: 7,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: '/images/dumbbell-set.jpg' },
-    //{ id: 8,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: '/images/yoga-mat.jpg' },
-  ])
-  const [itemToDelete,setItemToDelete] = useState<number | null>(null)
 
-  const updateQuantity = (id: number,newQuantity: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item,quantity: Math.min(newQuantity,item.stock) } : item
-      )
-    )
+  const cartItems = useAppSelector(CurrentCart);
+  const dispatch = useAppDispatch();
+  const [itemToDelete,setItemToDelete] = useState<string | null>(null)
+
+  const updateQuantity = (id: string,newQuantity: number) => {
+    dispatch(updateItemQuantity({ id,quantity: newQuantity }))
   }
 
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id))
+  const removeCartItem = (id: string) => {
+    dispatch(removeItem(id))
     setItemToDelete(null)
   }
 
@@ -81,8 +63,8 @@ const CartSheet: React.FC<CartSheetProps> = ({ open,onOpenChange }) => {
               className="max-h-[75vh] h-full flex-grow mt-6 mb-4 p-4"
             >
               {cartItems.map(item => (
-                <div key={item.id} className="flex items-center space-x-4 py-4">
-                  <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
+                <div key={item._id} className="flex items-center space-x-4 py-4">
+                  <img src={item.photos[0]} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
                   <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
                     <p className="text-sm text-gray-500">${item.price.toFixed(2)}</p>
@@ -90,7 +72,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open,onOpenChange }) => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.id,item.quantity - 1)}
+                        onClick={() => updateQuantity(item._id!,item.quantity - 1)}
                         disabled={item.quantity === 1}
                       >
                         <Minus className="h-4 w-4" />
@@ -99,14 +81,14 @@ const CartSheet: React.FC<CartSheetProps> = ({ open,onOpenChange }) => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.id,item.quantity + 1)}
+                        onClick={() => updateQuantity(item._id!,item.quantity + 1)}
                         disabled={item.quantity === item.stock}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => setItemToDelete(item.id)} className="text-red-500">
+                  <Button variant="ghost" size="icon" onClick={() => setItemToDelete(item._id!)} className="text-red-500">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -143,7 +125,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open,onOpenChange }) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => itemToDelete && removeItem(itemToDelete)}>
+            <AlertDialogAction onClick={() => itemToDelete && removeCartItem(itemToDelete)}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

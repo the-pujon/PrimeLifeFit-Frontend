@@ -15,13 +15,16 @@ import SearchBar from '../SearchBar/SearchBar'
 import { useAppDispatch,useAppSelector } from '@/redux/hook'
 import { isTokenExpired } from '@/utils/isTokenExpired'
 import { signOut,useCurrentToken } from '@/redux/features/auth/authSlice'
+import { CurrentCart } from '@/redux/features/cart/cartSlice'
 
 export default function Navbar() {
     const [activeItem,setActiveItem] = useState('home')
     const [isScrolled,setIsScrolled] = useState(false)
     const [isCartOpen,setIsCartOpen] = useState(false)
     const [isMenuOpen,setIsMenuOpen] = useState(false)
-    const cartItemCount = 2 // Replace with actual cart item count
+    const cartItems = useAppSelector(CurrentCart);
+
+    const cartItemCount = cartItems.length; // Replace with actual cart item count
     const navigate = useNavigate()
 
     const dispatch = useAppDispatch();
@@ -47,6 +50,8 @@ export default function Navbar() {
     const handleLogout = () => {
         dispatch(signOut())
     }
+
+    console.log(expiredToken)
 
     return (
         <nav
@@ -100,13 +105,17 @@ export default function Navbar() {
                             ))}
                         </ul>
 
-                        {!expiredToken ? (
-                            <motion.div
-                                className="flex items-center space-x-4"
-                                initial={{ opacity: 0,x: 20 }}
-                                animate={{ opacity: 1,x: 0 }}
-                                transition={{ duration: 1,delay: 0.4 }}
-                            >
+                        <motion.div
+                            className="flex items-center space-x-4"
+                            initial={{ opacity: 0,x: 20 }}
+                            animate={{ opacity: 1,x: 0 }}
+                            transition={{ duration: 1,delay: 0.4 }}
+                        >
+                            {expiredToken ? (
+                                <Button asChild variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold transition-all duration-300">
+                                    <Link to="/auth/signin">Sign In</Link>
+                                </Button>
+                            ) : (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="icon" className="text-white hover:text-primary transition-colors duration-300 transform hover:scale-110">
@@ -124,58 +133,46 @@ export default function Navbar() {
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                                <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(true)} className="relative text-white hover:text-primary transition-colors duration-300 transform hover:scale-110">
-                                    <ShoppingCart className="h-[1.2rem] w-[1.2rem]" />
-                                    <Badge variant="secondary" className="absolute -top-2 -right-2 bg-red-500 text-white">
-                                        {cartItemCount}
-                                    </Badge>
-                                </Button>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                initial={{ opacity: 0,x: 20 }}
-                                animate={{ opacity: 1,x: 0 }}
-                                transition={{ duration: 1,delay: 0.4 }}
-                            >
-                                <Button asChild variant="secondary" className="bg-white text-primary hover:bg-white/90 font-semibold transition-all duration-300">
-                                    <Link to="/auth/signin">Sign In</Link>
-                                </Button>
-                            </motion.div>
-                        )}
+                            )}
+                            <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(true)} className="relative text-white hover:text-primary transition-colors duration-300 transform hover:scale-110">
+                                <ShoppingCart className="h-[1.2rem] w-[1.2rem]" />
+                                <Badge variant="secondary" className="absolute -top-2 -right-2 bg-red-500 text-white">
+                                    {cartItemCount}
+                                </Badge>
+                            </Button>
+                        </motion.div>
                     </div>
 
                     <div className="flex items-center space-x-4 lg:hidden">
-                        {!expiredToken ? (
-                            <>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors duration-300">
-                                            <User size={20} />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56">
-                                        <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
-                                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                                            <span>Dashboard</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
-                                            <LogOut className="mr-2 h-4 w-4" />
-                                            <span>Log out</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(true)} className="relative text-white hover:text-white transition-colors duration-300">
-                                    <ShoppingCart className="h-[1.2rem] w-[1.2rem]" />
-                                    <Badge variant="secondary" className="absolute -top-2 -right-2 bg-red-500 text-white">
-                                        {cartItemCount}
-                                    </Badge>
-                                </Button>
-                            </>
-                        ) : (
+                        {expiredToken ? (
                             <Button asChild variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold transition-all duration-300">
                                 <Link to="/auth/signin">Sign In</Link>
                             </Button>
+                        ) : (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors duration-300">
+                                        <User size={20} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56">
+                                    <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
+                                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                                        <span>Dashboard</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        <span>Log out</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         )}
+                        <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(true)} className="relative text-white hover:text-white transition-colors duration-300">
+                            <ShoppingCart className="h-[1.2rem] w-[1.2rem]" />
+                            <Badge variant="secondary" className="absolute -top-2 -right-2 bg-red-500 text-white">
+                                {cartItemCount}
+                            </Badge>
+                        </Button>
                         <Button
                             variant="ghost"
                             size="icon"

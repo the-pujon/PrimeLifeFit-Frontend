@@ -5,8 +5,20 @@ import { Button } from './button'
 import { ArrowRight,Eye,ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Product } from '@/types/Product'
+import { useAppDispatch } from '@/redux/hook'
+import { addItem } from '@/redux/features/cart/cartSlice'
+import { toast } from 'sonner'
 
 const ProductCard = ({ product }: { product: Product }) => {
+
+    const dispatch = useAppDispatch();
+
+
+    const handleAddToCart = (selectedProduct: Product) => {
+        dispatch(addItem(selectedProduct));
+        toast.success("Product added to cart");
+    }
+
     return (
         <div>
             <Card className="group relative flex flex-col overflow-hidden rounded-none transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-gradient-to-br from-white to-gray-50">
@@ -39,8 +51,8 @@ const ProductCard = ({ product }: { product: Product }) => {
                                     variant="secondary"
                                     size="icon"
                                     className="rounded-full w-12 h-12 bg-white text-primary hover:bg-primary hover:text-white transition-all duration-300"
-                                //  onClick={() => handleAddToCart(product.id)}
-                                //  disabled={!product.inStock}
+                                    onClick={() => handleAddToCart(product)}
+                                    disabled={product.stock <= 0}
                                 >
                                     <ShoppingCart className="w-6 h-6" />
                                     <span className="sr-only">Add to Cart</span>
