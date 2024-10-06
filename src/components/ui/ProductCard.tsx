@@ -79,8 +79,8 @@ const ProductCard = ({ product }: { product: Product }) => {
                             asChild
                         >
                             <Link
-                                //to={`/products/${product.id}`}
-                                to="/product-details"
+                                to={`/products/${product._id!}`}
+                            //to="/product-details"
                             >
                                 View Details
                                 <ArrowRight className="ml-2 w-4 h-4" />

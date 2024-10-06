@@ -16,56 +16,28 @@ import { Card,CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
-import image1 from "@/assets/hero1.jpg"
-
-interface CartItem {
-    id: number
-    name: string
-    price: number
-    quantity: number
-    stock: number
-    image: string
-    description: string
-}
+import { useAppDispatch,useAppSelector } from '@/redux/hook'
+import { CurrentCart,removeItem,updateItemQuantity } from '@/redux/features/cart/cartSlice'
 
 const Cart = () => {
-    const [cartItems,setCartItems] = useState<CartItem[]>([])
-    const [itemToDelete,setItemToDelete] = useState<number | null>(null)
+    const [itemToDelete,setItemToDelete] = useState<string | null>(null)
     const [totalPrice,setTotalPrice] = useState(0)
     const [isOutOfStock,setIsOutOfStock] = useState(false)
-
-    useEffect(() => {
-        setCartItems([
-            { id: 1,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: image1,description: 'High-quality adjustable dumbbells for your home gym.' },
-            { id: 2,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: image1,description: 'Non-slip, eco-friendly yoga mat for comfortable practice.' },
-            { id: 3,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: image1,description: 'High-quality adjustable dumbbells for your home gym.' },
-            { id: 4,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: image1,description: 'Non-slip, eco-friendly yoga mat for comfortable practice.' },
-            { id: 5,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: image1,description: 'High-quality adjustable dumbbells for your home gym.' },
-            { id: 6,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: image1,description: 'Non-slip, eco-friendly yoga mat for comfortable practice.' },
-            { id: 7,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: image1,description: 'High-quality adjustable dumbbells for your home gym.' },
-            { id: 8,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: image1,description: 'Non-slip, eco-friendly yoga mat for comfortable practice.' },
-            { id: 9,name: 'Premium Dumbbell Set',price: 199.99,quantity: 1,stock: 5,image: image1,description: 'High-quality adjustable dumbbells for your home gym.' },
-            { id: 10,name: 'Yoga Mat',price: 29.99,quantity: 2,stock: 3,image: image1,description: 'Non-slip, eco-friendly yoga mat for comfortable practice.' },
-
-
-        ])
-    },[])
+    const cartItems = useAppSelector(CurrentCart);
+    const dispatch = useAppDispatch();
+    const shippingCost = 120;
 
     useEffect(() => {
         setTotalPrice(cartItems.reduce((sum,item) => sum + item.price * item.quantity,0))
         setIsOutOfStock(cartItems.some(item => item.quantity > item.stock))
     },[cartItems])
 
-    const updateQuantity = (id: number,newQuantity: number) => {
-        setCartItems(items =>
-            items.map(item =>
-                item.id === id ? { ...item,quantity: Math.min(newQuantity,item.stock) } : item
-            )
-        )
+    const updateQuantity = (id: string,newQuantity: number) => {
+        dispatch(updateItemQuantity({ id,quantity: newQuantity }))
     }
 
-    const removeItem = (id: number) => {
-        setCartItems(items => items.filter(item => item.id !== id))
+    const removeCartItem = (id: string) => {
+        dispatch(removeItem(id))
         setItemToDelete(null)
     }
 
@@ -98,7 +70,7 @@ const Cart = () => {
                     <div className="lg:col-span-2 space-y-6 sm:space-y-8">
                         {cartItems.map((item,index) => (
                             <motion.div
-                                key={item.id}
+                                key={item._id}
                                 initial={{ opacity: 0,y: 20 }}
                                 animate={{ opacity: 1,y: 0 }}
                                 transition={{ duration: 0.3,delay: index * 0.1 }}
@@ -106,7 +78,7 @@ const Cart = () => {
                                 <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 rounded-none">
                                     <CardContent className="p-4 sm:p-6">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                                            <img src={item.image} alt={item.name} className="w-full sm:w-32 md:w-48 h-32 sm:h-32 md:h-48 object-cover rounded-none shadow-md" />
+                                            <img src={item.photos[0]} alt={item.name} className="w-full sm:w-32 md:w-48 h-32 sm:h-32 md:h-48 object-cover rounded-none shadow-md" />
                                             <div className="flex-grow space-y-2 sm:space-y-4">
                                                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                                                     <h3 className="font-semibold text-xl sm:text-2xl text-gray-800">{item.name}</h3>
@@ -120,7 +92,7 @@ const Cart = () => {
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            onClick={() => updateQuantity(item.id,item.quantity - 1)}
+                                                            onClick={() => updateQuantity(item._id!,item.quantity - 1)}
                                                             disabled={item.quantity === 1}
                                                             className="rounded-full h-8 w-8"
                                                         >
@@ -130,7 +102,7 @@ const Cart = () => {
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            onClick={() => updateQuantity(item.id,item.quantity + 1)}
+                                                            onClick={() => updateQuantity(item._id!,item.quantity + 1)}
                                                             disabled={item.quantity === item.stock}
                                                             className="rounded-full h-8 w-8"
                                                         >
@@ -139,12 +111,12 @@ const Cart = () => {
                                                     </div>
                                                     <div className="space-x-2 flex sm:flex-none justify-between sm:justify-start">
                                                         <Button variant="outline" size="sm" asChild className="font-medium rounded-none flex-grow sm:flex-grow-0">
-                                                            <Link to={`/product/${item.id}`}>
+                                                            <Link to={`/products/${item._id!}`}>
                                                                 <Info className="h-4 w-4 mr-2" />
                                                                 Details
                                                             </Link>
                                                         </Button>
-                                                        <Button variant="destructive" size="sm" onClick={() => setItemToDelete(item.id)} className="font-medium rounded-none flex-grow sm:flex-grow-0">
+                                                        <Button variant="destructive" size="sm" onClick={() => setItemToDelete(item._id!)} className="font-medium rounded-none flex-grow sm:flex-grow-0">
                                                             <Trash2 className="h-4 w-4 mr-2" />
                                                             Remove
                                                         </Button>
@@ -174,12 +146,12 @@ const Cart = () => {
                                         </div>
                                         <div className="flex justify-between items-center text-base sm:text-lg">
                                             <span className="text-gray-600">Shipping:</span>
-                                            <span className="font-medium">$0.00</span>
+                                            <span className="font-medium">${shippingCost.toFixed(2)}</span>
                                         </div>
                                         <Separator className="my-3 sm:my-4" />
                                         <div className="flex justify-between items-center text-xl sm:text-2xl font-bold text-gray-800">
                                             <span>Total:</span>
-                                            <span>${totalPrice.toFixed(2)}</span>
+                                            <span>${(totalPrice + shippingCost).toFixed(2)}</span>
                                         </div>
                                     </div>
                                     <Button
@@ -208,7 +180,7 @@ const Cart = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => itemToDelete && removeItem(itemToDelete)}>
+                        <AlertDialogAction onClick={() => itemToDelete && removeCartItem(itemToDelete)}>
                             Remove
                         </AlertDialogAction>
                     </AlertDialogFooter>
