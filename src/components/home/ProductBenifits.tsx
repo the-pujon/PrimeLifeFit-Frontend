@@ -1,7 +1,8 @@
-
-import { motion } from 'framer-motion'
+import { motion,useScroll,useTransform } from 'framer-motion'
 import { Shield,Truck,Headphones,Zap } from 'lucide-react'
 import image from "@/assets/hero1.jpg"
+import { useRef } from 'react'
+import BenefitCard from './BenefitCard'
 
 const benefits = [
     {
@@ -34,42 +35,47 @@ const benefits = [
     },
 ]
 
+
+
 export default function ProductBenefits() {
+    const sectionRef = useRef(null)
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ["start end","end start"]
+    })
+
+    const opacity = useTransform(scrollYProgress,[0,0.2,0.8,1],[0,1,1,0])
+    const scale = useTransform(scrollYProgress,[0,0.2,0.8,1],[0.8,1,1,0.8])
+
+    const titleOpacity = useTransform(scrollYProgress,[0,0.1,0.9,1],[0,1,1,0])
+    const titleY = useTransform(scrollYProgress,[0,0.1,0.9,1],[20,0,0,-20])
+
     return (
-        <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
-            <div className="wrapper px-4">
-                <h2 className="text-3xl font-bold mb-12">Why Choose Our Products</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {benefits.map((benefit,index) => (
-                        <motion.div
-                            key={index}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-500 hover:scale-105"
-                            initial={{ opacity: 0,y: 50 }}
-                            animate={{ opacity: 1,y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                        >
-                            <div className="md:flex">
-                                <div className="md:flex-shrink-0">
-                                    <img
-                                        src={benefit.image}
-                                        alt={benefit.title}
-                                        width={300}
-                                        height={200}
-                                        className="h-48 w-full object-cover md:h-full md:w-48"
-                                    />
-                                </div>
-                                <div className="p-8">
-                                    <div className={`inline-block p-3 rounded-full ${benefit.color} mb-4`}>
-                                        <benefit.icon className="w-6 h-6" />
-                                    </div>
-                                    <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                                    <p className="text-gray-600">{benefit.description}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
+        <motion.section
+            ref={sectionRef}
+            className="py-16 bg-gradient-to-b from-gray-50 to-white wrapper"
+            style={{ opacity,scale }}
+        >
+            <div className="wrapper px-4"></div>
+            <motion.h2
+                className="text-3xl font-bold mb-12"
+                style={{
+                    opacity: titleOpacity,
+                    y: titleY
+                }}
+            >
+                Why Choose Our Products
+            </motion.h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {benefits.map((benefit,index) => (
+                    <BenefitCard
+                        key={index}
+                        benefit={benefit}
+                        index={index}
+                        scrollYProgress={scrollYProgress}
+                    />
+                ))}
             </div>
-        </section>
+        </motion.section >
     )
 }

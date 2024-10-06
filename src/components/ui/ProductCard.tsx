@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Card,CardContent,CardHeader,CardTitle } from './card';
@@ -10,8 +10,9 @@ import { useAppDispatch } from '@/redux/hook';
 import { addItem,selectProductStock } from '@/redux/features/cart/cartSlice';
 import { toast } from 'sonner';
 import { RootState } from '@/redux/store';
+import React from 'react';
 
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     const dispatch = useAppDispatch();
     const currentStock = useSelector((state: RootState) => selectProductStock(state,product._id,product.stock));
 
@@ -69,7 +70,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow p-6">
-                    <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex flex-col sm:flex-row items-start gap-1 sm:items-center sm:space-x-2 mb-2">
                         <Badge variant="default">{product.category}</Badge>
                         <Badge variant="outline">{product.brand ? product.brand : "N/A"}</Badge>
                     </div>
