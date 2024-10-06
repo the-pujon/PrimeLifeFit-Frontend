@@ -1,4 +1,4 @@
-import React,{ useEffect,useState } from 'react'
+import { useEffect,useState } from 'react'
 import { useLocation,useNavigate,Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useCreateOrderMutation } from '@/redux/features/order/orderApi'
@@ -23,7 +23,6 @@ const Success = () => {
                     toast.message("Order Placed Successfully",{
                         description: "Your order will be delivered soon.",
                     })
-                    // Redirect to product page after a short delay
                     setTimeout(() => {
                         navigate('/products')
                     },3000)
@@ -35,7 +34,6 @@ const Success = () => {
                     setIsProcessing(false)
                 }
             } else {
-                // No order data, probably accessed directly
                 setIsProcessing(false)
             }
         }

@@ -1,12 +1,14 @@
+import { Product } from "./Product";
+
 export interface OrderProduct {
-  productId: string;
+  product: Product;
   name: string;
   price: number;
   quantity: number;
 }
 
 export interface Order {
-  id: string;
+  _id: string;
   totalAmount: number;
   paymentMethod: "COD" | "Stripe";
   status: "Pending" | "Completed" | "Cancelled";
@@ -15,4 +17,6 @@ export interface Order {
   phone: string;
   email: string;
   products: OrderProduct[];
+  createdAt: string;
+  updatedAt: string;
 }

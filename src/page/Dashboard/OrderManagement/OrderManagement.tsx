@@ -15,68 +15,36 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-
-// Update the OrderProduct interface to include images
-interface OrderProduct {
-    productId: string;
-    name: string;
-    price: number;
-    quantity: number;
-    images: string[];
-}
-
-const demoOrders: Order[] = [
-    {
-        id: "ORD001",
-        totalAmount: 150.99,
-        paymentMethod: "Stripe",
-        status: "Pending",
-        city: "New York",
-        address: "123 Main St, Apt 4B",
-        phone: "+1 (555) 123-4567",
-        email: "customer@example.com",
-        products: [
-            { productId: "PROD1",name: "Product 1",price: 50.99,quantity: 2,images: ["https://example.com/image1.jpg"] },
-            { productId: "PROD2",name: "Product 2",price: 49.01,quantity: 1,images: ["https://example.com/image2.jpg"] },
-            { productId: "PROD2",name: "Product 2",price: 49.01,quantity: 1,images: ["https://example.com/image2.jpg"] },
-        ],
-    },
-    {
-        id: "ORD002",
-        totalAmount: 150.99,
-        paymentMethod: "Stripe",
-        status: "Pending",
-        city: "New York",
-        address: "123 Main St, Apt 4B",
-        phone: "+1 (555) 123-4567",
-        email: "customer@example.com",
-        products: [
-            { productId: "PROD1",name: "Product 1",price: 50.99,quantity: 2,images: ["https://example.com/image1.jpg"] },
-            { productId: "PROD2",name: "Product 2",price: 49.01,quantity: 1,images: ["https://example.com/image2.jpg"] },
-        ],
-    }
-];
+import { useGetAllOrdersQuery,useUpdateOrderMutation } from '@/redux/features/order/orderApi'
+import { format } from 'date-fns'
+import { toast } from 'sonner'
 
 const OrderManagement: React.FC = () => {
-    const [orders,setOrders] = useState<Order[]>(demoOrders)
+    const { data: orders,isLoading,isError } = useGetAllOrdersQuery(undefined)
+    const [updateOrder] = useUpdateOrderMutation()
     const [selectedOrder,setSelectedOrder] = useState<Order | null>(null)
     const navigate = useNavigate()
+
+    console.log(orders)
 
     const handleViewOrderDetails = (order: Order) => {
         setSelectedOrder(order)
     }
 
-    const handleUpdateStatus = (orderId: string,newStatus: Order['status']) => {
-        setOrders(prev => prev.map(order =>
-            order.id === orderId ? { ...order,status: newStatus } : order
-        ))
-        if (selectedOrder && selectedOrder.id === orderId) {
-            setSelectedOrder({ ...selectedOrder,status: newStatus })
+    const handleUpdateStatus = async (orderId: string,newStatus: Order['status']) => {
+        try {
+            await updateOrder({ id: orderId,data: { status: newStatus } }).unwrap()
+            if (selectedOrder && selectedOrder._id === orderId) {
+                setSelectedOrder({ ...selectedOrder,status: newStatus })
+            }
+            toast.success('Order status updated successfully')
+        } catch (error) {
+            console.error('Failed to update order status:',error)
         }
     }
 
     const handleViewProductDetails = (productId: string) => {
-        navigate(`/dashboard/product-management/${productId}`)
+        navigate(`/products/${productId}`)
     }
 
     const getStatusColor = (status: Order['status']) => {
@@ -86,6 +54,11 @@ const OrderManagement: React.FC = () => {
             case 'Cancelled': return 'bg-red-100 text-red-800'
             default: return 'bg-gray-100 text-gray-800'
         }
+    }
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString)
+        return format(date,'PPP p')
     }
 
     return (
@@ -100,48 +73,53 @@ const OrderManagement: React.FC = () => {
                         Order Management
                     </motion.h1>
 
-                    <div className="overflow-x-auto flex-grow">
-                        <Table className="w-full">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[100px]">Order ID</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead className="hidden sm:table-cell">Payment</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <AnimatePresence>
-                                    {orders.map((order) => (
-                                        <motion.tr
-                                            key={order.id}
-                                            initial={{ opacity: 0,y: 20 }}
-                                            animate={{ opacity: 1,y: 0 }}
-                                            exit={{ opacity: 0,y: -20 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="hover:bg-gray-100"
-                                        >
-                                            <TableCell className="font-medium">{order.id}</TableCell>
-                                            <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-                                            <TableCell className="hidden sm:table-cell">{order.paymentMethod}</TableCell>
-                                            <TableCell>
-                                                <Badge className={getStatusColor(order.status)}>
-                                                    {order.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="outline" size="sm" onClick={() => handleViewOrderDetails(order)}>
-                                                    <Eye className="w-4 h-4 mr-2" />
-                                                    <span className="hidden sm:inline">View</span>
-                                                </Button>
-                                            </TableCell>
-                                        </motion.tr>
-                                    ))}
-                                </AnimatePresence>
-                            </TableBody>
-                        </Table>
-                    </div>
+                    {isLoading && <p>Loading orders...</p>}
+                    {isError && <p>Error loading orders. Please try again.</p>}
+
+                    {orders && (
+                        <div className="overflow-x-auto flex-grow">
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Order ID</TableHead>
+                                        <TableHead>Total</TableHead>
+                                        <TableHead className="hidden sm:table-cell">Payment</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <AnimatePresence>
+                                        {orders?.data?.map((order: Order) => (
+                                            <motion.tr
+                                                key={order._id}
+                                                initial={{ opacity: 0,y: 20 }}
+                                                animate={{ opacity: 1,y: 0 }}
+                                                exit={{ opacity: 0,y: -20 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="hover:bg-gray-100"
+                                            >
+                                                <TableCell className="font-medium">{order._id}</TableCell>
+                                                <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                                                <TableCell className="hidden sm:table-cell">{order.paymentMethod}</TableCell>
+                                                <TableCell>
+                                                    <Badge className={getStatusColor(order.status)}>
+                                                        {order.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" onClick={() => handleViewOrderDetails(order)}>
+                                                        <Eye className="w-4 h-4 mr-2" />
+                                                        <span className="hidden sm:inline">View</span>
+                                                    </Button>
+                                                </TableCell>
+                                            </motion.tr>
+                                        ))}
+                                    </AnimatePresence>
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -160,11 +138,21 @@ const OrderManagement: React.FC = () => {
                                 <CardTitle className="text-lg">Order Information</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div className="flex flex-col gap-4 text-sm">
                                     <div className="flex items-center">
                                         <Package className="w-4 h-4 mr-2 text-gray-500" />
                                         <span className="font-medium">Order ID:</span>
-                                        <span className="ml-2">{selectedOrder.id}</span>
+                                        <span className="ml-2">{selectedOrder._id}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Created At:</span>
+                                        <span className="ml-2">{formatDate(selectedOrder.createdAt)}</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">Updated At:</span>
+                                        <span className="ml-2">{formatDate(selectedOrder.updatedAt)}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
@@ -181,7 +169,7 @@ const OrderManagement: React.FC = () => {
                                         <span className="font-medium">Status:</span>
                                         <Select
                                             value={selectedOrder.status}
-                                            onValueChange={(value: Order['status']) => handleUpdateStatus(selectedOrder.id,value)}
+                                            onValueChange={(value: Order['status']) => handleUpdateStatus(selectedOrder._id,value)}
                                         >
                                             <SelectTrigger className="w-[120px] ml-2">
                                                 <SelectValue placeholder="Status" />
@@ -195,7 +183,12 @@ const OrderManagement: React.FC = () => {
                                     </div>
                                 </div>
                                 <Separator className="my-4" />
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div className="flex flex-col gap-4 text-sm">
+                                    <div className="flex items-center">
+                                        <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                        <span className="font-medium">City:</span>
+                                        <span className="ml-2">{selectedOrder.city}</span>
+                                    </div>
                                     <div className="flex items-center">
                                         <MapPin className="w-4 h-4 mr-2 text-gray-500" />
                                         <span className="font-medium">Address:</span>
@@ -217,11 +210,11 @@ const OrderManagement: React.FC = () => {
                         <h3 className="text-lg font-semibold mt-6 mb-4">Products</h3>
                         <div className="space-y-4">
                             {selectedOrder.products.map((product: OrderProduct) => (
-                                <Card key={product.productId}>
+                                <Card key={product.product._id}>
                                     <CardContent className="p-4">
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                                            {product.images && product.images.length > 0 && (
-                                                <img src={product.images[0]} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                                            {product.product.photos && product.product.photos.length > 0 && (
+                                                <img src={product.product.photos[0]} alt={product.name} className="w-16 h-16 object-cover rounded" />
                                             )}
                                             <div className="flex-grow">
                                                 <h4 className="font-semibold text-base">{product.name}</h4>
@@ -231,7 +224,7 @@ const OrderManagement: React.FC = () => {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => handleViewProductDetails(product.productId)}
+                                                onClick={() => handleViewProductDetails(product.product._id as string)}
                                                 className="mt-2 sm:mt-0"
                                             >
                                                 <ExternalLink className="w-4 h-4 mr-2" /> Details

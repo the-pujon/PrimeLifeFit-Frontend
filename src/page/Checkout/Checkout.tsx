@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { useAppSelector } from '@/redux/hook'
 import { CurrentCart } from '@/redux/features/cart/cartSlice'
+import { selectCurrentUser } from '@/redux/features/auth/authSlice'
 
 interface FormData {
     name: string
@@ -22,16 +23,24 @@ interface FormData {
 }
 
 const Checkout = () => {
-    const { register,handleSubmit } = useForm<FormData>()
+    const { register,handleSubmit,setValue } = useForm<FormData>()
     const cartItems = useAppSelector(CurrentCart)
     const [totalPrice,setTotalPrice] = React.useState(0)
     const [paymentMethod,setPaymentMethod] = React.useState<'COD' | 'Stripe'>('COD')
     const navigate = useNavigate()
     const shippingCost = 120;
+    const currentUser = useAppSelector(selectCurrentUser)
 
     useEffect(() => {
         setTotalPrice(cartItems.reduce((sum,item) => sum + item.price * item.quantity,0))
     },[cartItems])
+
+    useEffect(() => {
+        // Pre-fill the email field with the current user's email
+        if (currentUser?.email) {
+            setValue('email',currentUser.email)
+        }
+    },[currentUser,setValue])
 
     const onSubmit = async (data: FormData) => {
         const orderData = {
@@ -42,7 +51,7 @@ const Checkout = () => {
             phone: data.phone,
             email: data.email,
             products: cartItems.map(item => ({
-                productId: item._id,
+                product: item._id,
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity,
@@ -98,7 +107,14 @@ const Checkout = () => {
                                         </div>
                                         <div>
                                             <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
-                                            <Input id="email" type="email" {...register('email',{ required: true })} className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                {...register('email')}
+                                                defaultValue={currentUser?.email || ''}
+                                                readOnly
+                                                className="mt-1 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary bg-gray-100"
+                                            />
                                         </div>
                                         <div>
                                             <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
