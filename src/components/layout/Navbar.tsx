@@ -14,7 +14,7 @@ import { motion,AnimatePresence } from 'framer-motion'
 import SearchBar from '../SearchBar/SearchBar'
 import { useAppDispatch,useAppSelector } from '@/redux/hook'
 import { isTokenExpired } from '@/utils/isTokenExpired'
-import { signOut,useCurrentToken } from '@/redux/features/auth/authSlice'
+import { selectCurrentUser,signOut,useCurrentToken } from '@/redux/features/auth/authSlice'
 import { CurrentCart } from '@/redux/features/cart/cartSlice'
 
 export default function Navbar() {
@@ -30,6 +30,8 @@ export default function Navbar() {
     const dispatch = useAppDispatch();
     const token = useAppSelector(useCurrentToken);
     const expiredToken = isTokenExpired(token);
+    const user = useAppSelector(selectCurrentUser);
+
 
 
     useEffect(() => {
@@ -122,10 +124,14 @@ export default function Navbar() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-56">
-                                        <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
-                                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                                            <span>Dashboard</span>
-                                        </DropdownMenuItem>
+                                        {
+                                            user?.role === 'admin' && (
+                                                <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
+                                                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                                                    <span>Dashboard</span>
+                                                </DropdownMenuItem>
+                                            )
+                                        }
                                         <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>Log out</span>
@@ -155,10 +161,14 @@ export default function Navbar() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56">
-                                    <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
-                                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                                        <span>Dashboard</span>
-                                    </DropdownMenuItem>
+                                    {
+                                        user?.role === 'admin' && (
+                                            <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
+                                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                                <span>Dashboard</span>
+                                            </DropdownMenuItem>
+                                        )
+                                    }
                                     <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
                                         <LogOut className="mr-2 h-4 w-4" />
                                         <span>Log out</span>
