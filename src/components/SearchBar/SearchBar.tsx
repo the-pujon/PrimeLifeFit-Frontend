@@ -1,49 +1,25 @@
-import React,{ useState,useRef,useEffect } from 'react'
+import React,{ useState,useRef } from 'react'
 import { Search,Loader2,Plus } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { useNavigate } from 'react-router-dom'
 import { motion,AnimatePresence } from 'framer-motion'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useGetAllProductsQuery } from '@/redux/features/product/productApi'
+import { Product } from '@/types/Product'
+import { useAppDispatch } from '@/redux/hook'
+import { addItem } from '@/redux/features/cart/cartSlice'
 import { toast } from 'sonner'
-//import { toast } from "@/components/ui/use-toast"
-
-interface Product {
-    id: number
-    name: string
-    price: number
-    image: string
-}
 
 export default function SearchBar() {
     const [searchQuery,setSearchQuery] = useState('')
     const [isFocused,setIsFocused] = useState(false)
-    const [isLoading,setIsLoading] = useState(false)
-    const [searchResults,setSearchResults] = useState<Product[]>([])
     const searchInputRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
     const debouncedSearchQuery = useDebounce(searchQuery,300)
 
-    useEffect(() => {
-        if (debouncedSearchQuery) {
-            searchProducts(debouncedSearchQuery)
-        } else {
-            setSearchResults([])
-        }
-    },[debouncedSearchQuery])
+    const dispatch = useAppDispatch()
 
-    const searchProducts = async (query: string) => {
-        setIsLoading(true)
-        // Simulating API call
-        await new Promise(resolve => setTimeout(resolve,500))
-        // Replace this with actual API call
-        const results = query ? [
-            { id: 1,name: 'Premium Dumbbell Set',price: 199.99,image: 'https://example.com/dumbbell.jpg' },
-            { id: 2,name: 'Yoga Mat',price: 29.99,image: 'https://example.com/yoga-mat.jpg' },
-            { id: 3,name: 'Resistance Bands',price: 15.99,image: 'https://example.com/resistance-bands.jpg' },
-        ] : []
-        setSearchResults(results)
-        setIsLoading(false)
-    }
+    const { data: searchResults,isLoading } = useGetAllProductsQuery(debouncedSearchQuery)
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
@@ -58,12 +34,8 @@ export default function SearchBar() {
     }
 
     const handleAddToCart = (product: Product) => {
-        //toast({
-        //    title: "Added to Cart",
-        //    description: `${product.name} has been added to your cart.`,
-        //    duration: 3000,
-        //})
-        alert(`${product.name} has been added to your cart.`)
+        toast.success("Product added to cart");
+        dispatch(addItem(product))
     }
 
     return (
@@ -101,7 +73,7 @@ export default function SearchBar() {
                                 <Loader2 className="animate-spin mx-auto mb-2" size={24} />
                                 <p className="text-sm">Searching for products...</p>
                             </div>
-                        ) : searchQuery && searchResults.length === 0 ? (
+                        ) : searchQuery && (!searchResults || searchResults.data.length === 0) ? (
                             <div className="text-center py-6 text-gray-500">
                                 <Search className="mx-auto mb-2" size={24} />
                                 <p className="text-sm">No products found</p>
@@ -115,15 +87,15 @@ export default function SearchBar() {
                             </div>
                         ) : (
                             <div className="divide-y divide-gray-100">
-                                {searchResults.map((product) => (
+                                {searchResults.data.map((product: Product) => (
                                     <motion.div
-                                        key={product.id}
+                                        key={product._id}
                                         initial={{ opacity: 0,y: 5 }}
                                         animate={{ opacity: 1,y: 0 }}
                                         transition={{ duration: 0.2 }}
                                         className="flex items-center p-3 hover:bg-gray-50 transition-colors duration-150"
                                     >
-                                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-md mr-4" />
+                                        <img src={product.photos[0]} alt={product.name} className="w-16 h-16 object-cover rounded-md mr-4" />
                                         <div className="flex-grow min-w-0">
                                             <h3 className="font-medium text-gray-800 text-sm truncate">{product.name}</h3>
                                             <p className="text-primary text-xs font-medium mt-1">${product.price.toFixed(2)}</p>

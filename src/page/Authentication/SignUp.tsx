@@ -128,8 +128,21 @@ const SignUp: React.FC = () => {
                                 {errors.name && <div className="text-red-500 text-sm">Name is required.</div>}
                                 <Input className='backdrop-blur-sm w-full text-black' required type="email" placeholder="Email" id="email" {...register('email',{ required: true })} />
                                 {errors.email && <div className="text-red-500 text-sm">Email is required.</div>}
-                                <Input className='backdrop-blur-sm w-full text-black' required type="password" placeholder="Password" id="password" {...register('password',{ required: true })} />
-                                {errors.password && <div className="text-red-500 text-sm">Password is required.</div>}
+                                <Input
+                                    className='backdrop-blur-sm w-full text-black'
+                                    required
+                                    type="password"
+                                    placeholder="Password"
+                                    id="password"
+                                    {...register('password',{
+                                        required: 'Password is required',
+                                        minLength: {
+                                            value: 8,
+                                            message: 'Password must be at least 8 characters long'
+                                        },
+                                    })}
+                                />
+                                {errors.password && <div className="text-red-500 text-sm">{errors.password.message}</div>}
                                 <Button
                                     className="w-full tracking-wide font-semibold bg-foreground text-gray-100 py-4 rounded-lg hover:text-black hover:bg-white transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                                 >

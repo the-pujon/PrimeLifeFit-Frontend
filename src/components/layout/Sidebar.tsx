@@ -25,9 +25,9 @@ const Sidebar: React.FC = () => {
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             <nav className={`pt-20 bg-gray-900 text-gray-100 w-64 min-h-screen p-4 fixed left-0 top-0 z-10 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-200 ease-in-out`}>
-                <div className="flex items-center justify-center mb-8">
+                <Link to="/" className="flex items-center justify-center mb-8">
                     <span className="text-2xl font-bold">PrimeLifeFit</span>
-                </div>
+                </Link>
                 <ul>
                     {menuItems.map((item) => (
                         <li key={item.name} className="mb-2">

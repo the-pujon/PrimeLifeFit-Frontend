@@ -14,6 +14,7 @@ import Home from "@/page/Home/Home";
 import ProductDetails from "@/page/ProductDetails/ProductDetails";
 import Products from "@/page/Products/Products";
 import { createBrowserRouter } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
     {
@@ -39,15 +40,15 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/cart',
-                element: <Cart />
+                element: <ProtectedRoute accessLevel="user"><Cart /></ProtectedRoute>
             },
             {
                 path: '/checkout',
-                element: <Checkout />
+                element: <ProtectedRoute accessLevel="both"><Checkout /></ProtectedRoute>
             },
             {
                 path: '/success',
-                element: <Success />
+                element: <ProtectedRoute accessLevel="both"><Success /></ProtectedRoute>
             }
         ]
     },
@@ -66,23 +67,23 @@ export const router = createBrowserRouter([
     },
     {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <ProtectedRoute accessLevel="admin"><Dashboard /></ProtectedRoute>,
         children: [
             {
                 path: "",
-                element: <Overview />
+                element: <ProtectedRoute accessLevel="admin"><Overview /></ProtectedRoute>
             },
             {
                 path: "order-management",
-                element: <OrderManagement />
+                element: <ProtectedRoute accessLevel="admin"><OrderManagement /></ProtectedRoute>
             },
             {
                 path: "product-management",
-                element: <ProductManagement />
+                element: <ProtectedRoute accessLevel="admin"><ProductManagement /></ProtectedRoute>
             },
             {
                 path: "customer-management",
-                element: <CustomerManagement />
+                element: <ProtectedRoute accessLevel="admin"><CustomerManagement /></ProtectedRoute>
             }
         ]
     }
