@@ -36,7 +36,6 @@ const Checkout = () => {
     },[cartItems])
 
     useEffect(() => {
-        // Pre-fill the email field with the current user's email
         if (currentUser?.email) {
             setValue('email',currentUser.email)
         }

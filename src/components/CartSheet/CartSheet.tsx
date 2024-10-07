@@ -59,7 +59,6 @@ const CartSheet: React.FC<CartSheetProps> = ({ open,onOpenChange }) => {
         ) : (
           <>
             <ScrollArea
-              //className="flex-grow mt-6 mb-4"
               className="max-h-[75vh] h-full flex-grow mt-6 mb-4 p-4"
             >
               {cartItems.map(item => (

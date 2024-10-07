@@ -3,8 +3,8 @@ import { Button } from '../ui/button'
 import { Link } from 'react-router-dom'
 import { useGetAllProductsQuery } from "@/redux/features/product/productApi"
 import { Product } from "@/types/Product"
-import { motion } from 'framer-motion' // Add this import
-import { Skeleton } from '../ui/skeleton' // Add this import
+import { motion } from 'framer-motion'
+import { Skeleton } from '../ui/skeleton'
 
 const FeaturedProduct = () => {
 

@@ -1,5 +1,4 @@
 import AboutUs from '@/components/home/AboutUs'
-//import BrandPartners from '@/components/home/BrandPartners'
 import FeaturedProduct from '@/components/home/FeaturedProduct'
 import Features from '@/components/home/Features'
 import Gallery from '@/components/home/Gallery'

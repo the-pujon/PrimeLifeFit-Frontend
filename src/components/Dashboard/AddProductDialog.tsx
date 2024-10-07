@@ -39,7 +39,6 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({ isOpen,onClose,onSa
             }
 
             onSave(productWithUrls)
-            //toast.success('Product added successfully')
             onClose()
         } catch (error) {
             console.error('Error uploading images:',error)

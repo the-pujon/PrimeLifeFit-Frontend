@@ -12,7 +12,6 @@ import { addItem,selectProductStock } from '@/redux/features/cart/cartSlice';
 import { useSelector } from 'react-redux';
 import { CurrentCart } from '@/redux/features/cart/cartSlice';
 import { RootState } from '@/redux/store';
-//import { selectProductStock } from '@/redux/features/product/productSelectors';
 
 const ProductDetails: React.FC = () => {
     const { id } = useParams();
@@ -32,7 +31,6 @@ const ProductDetails: React.FC = () => {
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
-        //setSelectedIndex(emblaApi.selectedScrollSnap());
     },[emblaApi]);
 
     useEffect(() => {

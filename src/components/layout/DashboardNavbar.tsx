@@ -8,13 +8,15 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAppDispatch } from '@/redux/hook'
+import { signOut } from '@/redux/features/auth/authSlice'
 
 const DashboardNavbar: React.FC = () => {
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
 
     const handleLogout = () => {
-        // Implement logout logic here
-        // For example: authService.logout()
+        dispatch(signOut())
         navigate('/login')
     }
 

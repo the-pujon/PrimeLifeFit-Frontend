@@ -2,7 +2,7 @@ import { RootState } from "@/redux/store";
 import { Product } from "@/types/Product";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface CartState {
+export interface CartState {
   items: (Product & { quantity: number })[];
 }
 

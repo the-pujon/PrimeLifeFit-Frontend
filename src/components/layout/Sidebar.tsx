@@ -8,12 +8,9 @@ const Sidebar: React.FC = () => {
 
     const menuItems = [
         { icon: PanelsTopLeft,name: 'Overview',path: '/dashboard' },
-        //{ icon: BarChart2, name: 'Analytics', path: '/dashboard/analytics' },
         { icon: Users,name: 'Customers',path: '/dashboard/customer-management' },
         { icon: ShoppingBasket,name: 'Products',path: '/dashboard/product-management' },
         { icon: ShoppingBag,name: 'Orders',path: '/dashboard/order-management' },
-        //{ icon: Settings, name: 'Settings', path: '/dashboard/settings' },
-        //{ icon: HelpCircle, name: 'Help', path: '/dashboard/help' },
     ]
 
     return (

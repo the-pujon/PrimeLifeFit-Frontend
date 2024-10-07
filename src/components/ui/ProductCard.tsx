@@ -88,7 +88,6 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                         >
                             <Link
                                 to={`/products/${product._id!}`}
-                            //to="/product-details"
                             >
                                 View Details
                                 <ArrowRight className="ml-2 w-4 h-4" />

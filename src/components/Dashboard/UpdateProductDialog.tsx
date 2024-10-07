@@ -28,7 +28,6 @@ const UpdateProductDialog: React.FC<UpdateProductDialogProps> = ({ isOpen,onClos
             }
 
             onSave(finalProduct)
-            //toast.success('Product updated successfully')
             onClose()
         } catch (error) {
             console.error('Error updating product:',error)

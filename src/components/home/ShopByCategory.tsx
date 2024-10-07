@@ -3,7 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft,ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { categories } from '@/utils/Categories'
-import { motion } from 'framer-motion' // Add this import
+import { motion } from 'framer-motion'
 
 export default function ShopByCategory() {
     const navigate = useNavigate();

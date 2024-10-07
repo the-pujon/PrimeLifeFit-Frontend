@@ -4,7 +4,7 @@ import { isTokenExpired } from '@/utils/isTokenExpired';
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 
-// Update the type to include different access levels
+
 type TProtectedRoute = {
     children: ReactNode;
     accessLevel: 'user' | 'admin' | 'both';
@@ -39,7 +39,6 @@ const ProtectedRoute = ({ children,accessLevel }: TProtectedRoute) => {
                 }
                 break;
             case 'both':
-                // Both users and admins are allowed, no additional check needed
                 break;
             default:
                 // If an invalid access level is provided, sign out and redirect
