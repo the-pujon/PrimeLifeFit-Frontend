@@ -19,7 +19,7 @@ import { motion } from "framer-motion"
 import { useAppDispatch,useAppSelector } from '@/redux/hook'
 import { CurrentCart,removeItem,updateItemQuantity } from '@/redux/features/cart/cartSlice'
 
-const Cart = () => {
+const Cart: React.FC = () => {
     const [itemToDelete,setItemToDelete] = useState<string | null>(null)
     const [totalPrice,setTotalPrice] = useState(0)
     const [isOutOfStock,setIsOutOfStock] = useState(false)
