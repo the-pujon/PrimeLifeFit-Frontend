@@ -1,6 +1,6 @@
 import { useState,useEffect } from 'react'
 import { User,ShoppingCart,Dumbbell,Menu,X,LogOut,LayoutDashboard } from 'lucide-react'
-import { Link,useNavigate } from 'react-router-dom'
+import { Link,useNavigate,useLocation } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import CartSheet from '../CartSheet/CartSheet'
@@ -18,21 +18,20 @@ import { selectCurrentUser,signOut,useCurrentToken } from '@/redux/features/auth
 import { CurrentCart } from '@/redux/features/cart/cartSlice'
 
 export default function Navbar() {
-    const [activeItem,setActiveItem] = useState('home')
+    const [activeItem,setActiveItem] = useState('')
+    const location = useLocation()
     const [isScrolled,setIsScrolled] = useState(false)
     const [isCartOpen,setIsCartOpen] = useState(false)
     const [isMenuOpen,setIsMenuOpen] = useState(false)
     const cartItems = useAppSelector(CurrentCart);
 
-    const cartItemCount = cartItems.length; // Replace with actual cart item count
+    const cartItemCount = cartItems.length;
     const navigate = useNavigate()
 
     const dispatch = useAppDispatch();
     const token = useAppSelector(useCurrentToken);
     const expiredToken = isTokenExpired(token);
     const user = useAppSelector(selectCurrentUser);
-
-
 
     useEffect(() => {
         const handleScroll = () => {
@@ -48,11 +47,22 @@ export default function Navbar() {
         { name: 'About us',to: '/about-us' },
     ]
 
+    useEffect(() => {
+        const path = location.pathname
+        if (path === '/') {
+            setActiveItem('home')
+        } else if (path.startsWith('/products')) {
+            setActiveItem('our products')
+        } else if (path === '/about-us') {
+            setActiveItem('about us')
+        } else {
+            setActiveItem('')
+        }
+    },[location])
 
     const handleLogout = () => {
         dispatch(signOut())
     }
-
 
     return (
         <nav
@@ -92,15 +102,18 @@ export default function Navbar() {
                                     <Link
                                         to={item.to}
                                         className={`relative text-white hover:text-white transition-colors duration-300 py-2 group`}
-                                        onClick={() => setActiveItem(item.name.toLowerCase())}
                                     >
                                         {item.name}
-                                        <motion.span
-                                            className="absolute left-0 bottom-0 w-full h-0.5 bg-white"
-                                            initial={{ scaleX: 0 }}
-                                            animate={{ scaleX: activeItem === item.name.toLowerCase() ? 1 : 0 }}
-                                            transition={{ duration: 0.3 }}
-                                        />
+                                        {
+                                            activeItem === item.name.toLowerCase() && (
+                                                <motion.span
+                                                    className="absolute left-0 bottom-0 w-full h-0.5 bg-white"
+                                                    initial={{ scaleX: 0 }}
+                                                    animate={{ scaleX: 1 }}
+                                                    transition={{ duration: 0.3 }}
+                                                />
+                                            )
+                                        }
                                     </Link>
                                 </motion.li>
                             ))}

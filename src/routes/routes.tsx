@@ -40,7 +40,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/cart',
-                element: <ProtectedRoute accessLevel="user"><Cart /></ProtectedRoute>
+                element: <ProtectedRoute accessLevel="both"><Cart /></ProtectedRoute>
             },
             {
                 path: '/checkout',
