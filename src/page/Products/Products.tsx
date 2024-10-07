@@ -8,6 +8,7 @@ import { categories } from '@/utils/Categories'
 import { useDebounce } from '@/hooks/useDebounce'
 import FilterBar from '@/components/Products/FilterBar'
 import { useLocation } from 'react-router-dom'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface Product {
     _id: string;
@@ -86,6 +87,18 @@ export default function Products() {
         setIsFilterModalOpen(!isFilterModalOpen)
     }
 
+    const itemVariants = {
+        hidden: { y: 20,opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: "spring",
+                stiffness: 100
+            }
+        }
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
             <motion.h1
@@ -106,7 +119,7 @@ export default function Products() {
             <div className="flex flex-col lg:flex-row gap-8 mb-8">
                 {/* Filter section for large screens */}
                 <motion.div
-                    className="hidden lg:block w-1/4 space-y-6 bg-gray-50 p-6 rounded-lg shadow-md"
+                    className="hidden lg:block w-1/4 space-y-6 bg-gray-50 p-6 rounded-lg shadow-md sticky top-16 self-start"
                     initial={{ opacity: 0,x: -20 }}
                     animate={{ opacity: 1,x: 0 }}
                     transition={{ duration: 0.5,delay: 0.2 }}
@@ -172,7 +185,13 @@ export default function Products() {
                     transition={{ duration: 0.5,delay: 0.4 }}
                 >
                     {isLoading ? (
-                        <p className="text-center text-gray-500 mt-8 text-lg">Loading products...</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {Array(6).fill(0).map((_,index) => (
+                                <motion.div key={index} variants={itemVariants} >
+                                    <Skeleton className="h-[200px] sm:h-[250px] lg:h-[28rem] w-full rounded-lg" />
+                                </motion.div>
+                            ))}
+                        </div>
                     ) : error ? (
                         <p className="text-center text-red-500 mt-8 text-lg">Error loading products: {error.toString()}</p>
                     ) : filteredProducts.length === 0 ? (
