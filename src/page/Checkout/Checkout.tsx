@@ -43,17 +43,12 @@ const Checkout = () => {
         }
     },[currentUser,setValue])
 
-    useEffect(() => {
-        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            e.preventDefault();
-            setShowAlert(true);
-            e.returnValue = '';
-        };
 
-        window.addEventListener('beforeunload',handleBeforeUnload);
+    useEffect(() => {
+        window.onbeforeunload = () => true;
 
         return () => {
-            window.removeEventListener('beforeunload',handleBeforeUnload);
+            window.onbeforeunload = null;
         };
     },[]);
 
