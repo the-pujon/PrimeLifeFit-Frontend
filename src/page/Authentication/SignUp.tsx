@@ -90,7 +90,7 @@ const SignUp: React.FC = () => {
             >
                 <div className="w-full lg:w-1/2 p-8 lg:p-12">
                     <motion.div variants={itemVariants}>
-                        <p className='text-white text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-6'>Car Service</p>
+                        <p className='text-white text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-6'>PrimeLifeFit</p>
                     </motion.div>
                     <div className="flex flex-col items-center">
                         <motion.h1 variants={itemVariants} className="text-2xl sm:text-3xl font-extrabold mb-6">Sign up</motion.h1>
