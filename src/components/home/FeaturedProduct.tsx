@@ -36,11 +36,11 @@ const FeaturedProduct = () => {
         <div className='wrapper px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16'>
             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8'>
                 <div className='mb-4 sm:mb-0'>
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-2">Shop by Equipment Category</h2>
-                    <p className="text-base sm:text-lg text-gray-600 font-serif">Explore our wide range of fitness gear</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-2">Featured Fitness Equipment</h2>
+                    <p className="text-base sm:text-lg text-gray-600 font-serif">Elevate your workout with our top picks</p>
                 </div>
                 <Button asChild className='mt-4 sm:mt-0'>
-                    <Link to={'/'}>View All</Link>
+                    <Link to={'/products'}>View All Products</Link>
                 </Button>
             </div>
             <motion.div
