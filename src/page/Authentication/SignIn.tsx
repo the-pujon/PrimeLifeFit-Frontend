@@ -155,7 +155,7 @@ const SignIn: React.FC = () => {
                 </div>
                 <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center">
                     <div
-                        className="w-full h-full bg-contain bg-center bg-no-repeat"
+                        className="w-11/12 h-full bg-contain bg-center bg-no-repeat"
                         style={{
                             backgroundImage:
                                 `url(${signInImage})`,

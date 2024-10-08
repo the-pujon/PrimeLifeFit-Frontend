@@ -13,6 +13,7 @@ import { useSignupMutation } from '@/redux/features/auth/authApi';
 import Loading from '@/components/ui/Loading';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import signUpImage from '@/assets/Auth/signup.png';
 
 type Inputs = {
     name: string;
@@ -171,10 +172,10 @@ const SignUp: React.FC = () => {
                 </div>
                 <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center">
                     <div
-                        className="w-full h-full bg-contain bg-center bg-no-repeat"
+                        className="w-11/12 h-full bg-contain bg-center bg-no-repeat"
                         style={{
                             backgroundImage:
-                                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
+                                `url(${signUpImage})`,
                         }}
                     ></div>
                 </div>
